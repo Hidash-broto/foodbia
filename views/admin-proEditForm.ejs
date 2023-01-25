@@ -1,0 +1,49 @@
+<div class="container-fluid pt-4 px-4">
+    <div class="row ">
+        <div class="col-xl-2">
+
+        </div>
+<div class="col-sm-12 col-xl-6 ml-5">
+    <form class="mt-5" id="checkout-form" method="post" action="/updateProduct/<%= pro._id %> " enctype="multipart/form-data">
+        <div class="form-row">
+          <div class="form-group col-md-6">
+            <label for="inputEmail4">Product Name</label>
+            <input type="text" class="form-control" id="inputEmail4" placeholder="Product Name" value="<%= pro.name %> " name="name">
+          </div>
+          <div class="form-group col-md-6">
+            <label for="inputPassword4">Price</label>
+            <input type="text" class="form-control" id="inputPassword4" placeholder="price" name="price" value="<%= pro.price %> ">
+          </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-6">
+              <label for="inputEmail4">Image</label>
+              <input type="file" name="image" multiple>
+            </div>
+            <div class="form-group col-md-6">
+              <label for="inputPassword4">Type</label>
+              <input type="text" class="form-control" id="inputPassword4" placeholder="Type" name="type" value="<%= pro.type %> ">
+            </div>
+          </div>
+  
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label for="inputEmail4">Categary</label>
+              <input type="text" class="form-control" id="inputEmail4" placeholder="Category" value="<%= pro.category%>" name="category" value="<%= pro.category %> ">
+            </div>
+            <div class="form-group col-md-6">
+              <label for="inputPassword4">Flavour</label>
+              <input type="text" class="form-control" id="inputPassword4" placeholder="Flavour" name="flavour" value="<%= pro.flavour %> ">
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary">Add</button>
+       </form>
+    </div>
+</div>
+</div>
+    
+    <style>
+      .body{
+        background-color: black;
+      }
+    </style>

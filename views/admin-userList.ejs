@@ -1,0 +1,56 @@
+
+<div class="container-fluid pt-4 px-4">
+    <div class="row ">
+        <div class="col-xl-2">
+
+        </div>
+<div class="col-sm-12 col-xl-6 ml-5">
+<table class="table table-bordered">
+    <thead>
+      <tr>
+        <th scope="col">Name</th>
+        <th scope="col">Email</th>
+        <th scope="col">Password</th>
+        <th scope="col">Option</th>
+      </tr>
+    </thead>
+    <% users.forEach((user)=>{ %>
+    <tbody>
+      <tr>
+        <th scope="row"><%= user.name%> </th>
+        <td><%= user.email%> </td>
+        <td><%= user.password%> </td>
+        <td><button onclick="blocking('<%=user._id%>')" id="<%= user._id %>" class="btn btn-primary"><%= user.userType %> </button></td>
+      </tr>
+    </tbody>
+ <% }) %> 
+  </table>
+</div>
+</div>
+</div>
+  <style>
+
+  </style>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+<script>
+
+    function blocking(usrId) {
+      console.log(usrId);
+        $.ajax({
+            url:'/blockUser',
+            data:{
+                userId:usrId
+            },
+            method:'post',
+            success:(response)=>{
+                console.log(response);
+                if(response == 'Block'){
+                  location.reload()
+                }else{
+                  location.reload()
+                }
+            }          
+        })
+    }
+</script>

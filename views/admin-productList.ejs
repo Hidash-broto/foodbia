@@ -1,0 +1,88 @@
+<body>
+  <div class="container-fluid pt-4 px-4">
+    <div class="row">
+      <div class="col-xl-2"></div>
+      <div class="col-sm-12 col-xl-6 ml-5">
+        <a href="/addProductView" class="btn btn-primary">Add Product</a>
+        <table class="table table-bordered mt-3">
+          <thead>
+            <tr>
+              <th scope="col">Image</th>
+              <th scope="col">Name</th>
+              <th scope="col">Price</th>
+              <th scope="col">Type</th>
+              <th scope="col">Catogary</th>
+              <th scope="col">Flavour</th>
+              <th scope="col">Options</th>
+            </tr>
+          </thead>
+          <% products.forEach((product)=>{ %>
+          <tbody>
+            <tr>
+              <td>
+                <img
+                  style="width: 100px"
+                  src="image/<%=product.image[0]%>"
+                  alt=""
+                />
+              </td>
+              <th scope="row"><%= product.name%></th>
+              <td><%= product.price %></td>
+              <td><%= product.type %></td>
+              <td><%= product.category %></td>
+              <td><%= product.flavour %></td>
+              <td>
+                <button
+                  class="btn btn-danger"
+                  onclick="prdRemove('<%=product._id%>')"
+                >
+                  Remove
+                </button>
+                <a
+                  href="/editProduct/<%= product._id %> "
+                  class="btn btn-warning mt-3"
+                  >Edit</a
+                >
+              </td>
+            </tr>
+          </tbody>
+          <% }) %>
+        </table>
+      </div>
+    </div>
+  </div>
+</body>
+
+<head>
+  <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    function prdRemove(params) {
+      Swal.fire({
+        title: "Are you sure?",
+        showDenyButton: true,
+        showCancelButton: true,
+        confirmButtonText: "Yes",
+        denyButtonText: `No`,
+      }).then((result) => {
+        /* Read more about isConfirmed, isDenied below */
+        if (result.isConfirmed) {
+          Swal.fire("Saved!", "", "success");
+          $.ajax({
+            url: "/dropProduct",
+            method: "post",
+            data: {
+              id: params,
+            },
+            success: (res) => {
+              if (res.status) {
+                location.reload();
+              }
+            },
+          });
+        } else if (result.isDenied) {
+          Swal.fire("Deleted", "", "info");
+        }
+      });
+    }
+  </script>
+</head>

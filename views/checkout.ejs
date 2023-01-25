@@ -1,0 +1,207 @@
+<nav class="navbar navbar-light bg-warning">
+  <a class="navbar-brand" href="/">
+    <img src="//cdn.shopify.com/s/files/1/0553/2824/3758/files/FOODBIA-LOGO.png?v=1668835038&amp;width=150" alt="dt-foodbia" srcset="//cdn.shopify.com/s/files/1/0553/2824/3758/files/FOODBIA-LOGO.png?v=1668835038&amp;width=50 50w, //cdn.shopify.com/s/files/1/0553/2824/3758/files/FOODBIA-LOGO.png?v=1668835038&amp;width=100 100w, //cdn.shopify.com/s/files/1/0553/2824/3758/files/FOODBIA-LOGO.png?v=1668835038&amp;width=150 150w" width="150" height="55.55555555555556" class="header__heading-logo">
+  </a>
+  <% if(user){ %> 
+  <a href="/wishlist" class="btn btn-primary " style="border-radius:10px ;width: 100px;">wishlist</a>
+  <a href="/viewOrder" class="btn btn-primary " style="border-radius:10px ;width: 100px;">Orders</a>
+  <a href="/logout" class="btn btn-primary " style="border-radius:10px ;width: 100px;">logout</a>
+  <% }else{ %>
+    <a href="/wishlist" class="btn btn-primary " style="border-radius:10px ;width: 100px;">logout</a>
+    <% } %>  
+</nav>
+
+
+<div class="container ">
+<form class="mt-5" id="checkout-form" enctype="multipart/form-data">
+  <input type="text" class="form-control" id="inputEmail4" value="<%= user._id %> " name="userId" hidden>
+    <div class="form-row">
+      <div class="form-group col-md-6">
+        <label for="inputEmail4">Name</label>
+        <input type="text" class="form-control" id="Name" placeholder="First Name" value="" name="Name" required>
+        <p id="empty" class="form-text text-muted invalid-feedback" for="name">This field is required.</p>
+      </div>
+      <div class="form-group col-md-6">
+        <label for="inputPassword4">Mobile-No</label>
+        <input type="number" class="form-control" id="inputPassword4" placeholder="Mobile-No" name="mobileNo" required>
+        <p id="empty" class="form-text text-muted invalid-feedback" for="name">This field is required.</p>
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="inputAddress">Address</label>
+      <input type="text" class="form-control" id="inputAddress" placeholder="1234 Main St" name="address" required>
+      <p id="empty" class="form-text text-muted invalid-feedback" for="name">This field is required.</p>
+    </div>
+    <div class="form-group">
+      <label for="inputAddress2">Address 2(optional)</label>
+      <input type="text" class="form-control" id="inputAddress2" placeholder="Apartment, studio, or floor" name="addressOpt" required>
+      <p id="empty" class="form-text text-muted invalid-feedback" for="name">This field is required.</p>
+    </div>
+    <div class="form-row">
+      <div class="form-group col-md-6">
+        <label for="inputCity">City</label>
+        <input type="text" class="form-control" id="inputCity" name="city" required>
+        <p id="empty" class="form-text text-muted invalid-feedback" for="name">This field is required.</p>
+      </div>
+      <div class="form-group col-md-4">
+        <label for="inputState">State</label>
+        <select id="inputState" class="form-control" name="state" required>
+          <option selected>Choose...</option>
+          <option>Kerala</option>
+        </select>
+        <p id="empty" class="form-text text-muted invalid-feedback" for="name">This field is required.</p>
+      </div>
+      <div class="form-group col-md-2">
+        <label for="inputZip">Zip</label>
+        <input type="text" class="form-control" id="inputZip" name="pinCode" required>
+        <p id="empty" class="form-text text-muted invalid-feedback" for="name">This field is required.</p>
+      </div>
+    </div>
+    <div class="form-group col-md-4">
+      <label for="inputState">payment Method</label>
+      <select id="inputState" class="form-control" name="paymentMethod" required>
+        <option selected>Payment Method</option>
+        <option>Cash on Delivery</option>
+        <option>Razorpay</option>
+      </select>
+      <p id="empty" class="form-text text-muted invalid-feedback" for="name">This field is required.</p>
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+  </form>
+  <a href="/viewOrder"><button id="vOrders" class="btn btn-success mt-2">View Order</button></a>
+</div>
+
+<style>
+  .body{
+    background-color: black;
+  }
+</style>
+
+<head>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.0/jquery.min.js"> </script>  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.0/jquery.validate.min.js"></script>  
+  <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+
+
+$(document).ready(function (Value) {
+  function validateUsername() {
+    console.log('kokok');
+if (Value.length == "") {
+$("#empty").show();
+usernameError = false;
+return false;
+}}
+
+  $("#empty").hide();
+  let Value = $("#Name").val();
+  var content = true;
+  $("#Name").keyup(function () {
+  validateUsername(Value);
+  });
+
+  // $("#empty").hide();
+  // let Value = $("#Name").val();
+  // var content = true;
+  // $("#Name").keyup(function () {
+  // validateUsername(Value);
+  // });
+
+})
+// $("#checkout-form").validate({
+//     rules:{
+//       Name:{
+//         minlength: 2
+//       }
+//     },
+//     messages:{
+//       required:'please enter field',
+//       minlength:'must have 2 charecter'
+//     },
+//   submitHandler: function(form) {
+//     form.submit();
+//   }
+//  });
+
+
+  $("#checkout-form").submit((e)=>{
+    e.preventDefault()
+    $.ajax({
+      url:'/place-order',
+      method:'post',
+      data:$('#checkout-form').serialize(),
+      success:(response)=>{
+        console.log(response);
+        if(response == 'placed'){
+          Swal.fire({
+          icon: 'success',
+          title: 'Placed',
+          showConfirmButton: false,
+          timer: 1500
+})
+  location.href = '/viewOrder'
+        }else{
+          console.log('huhuh');
+          pay(response.order)
+        }
+      }
+    })
+  })
+
+function pay(order){
+  var options = {
+    "key": 'rzp_test_4Ag1DMzpvRdaUz', // Enter the Key ID generated from the Dashboard
+    "amount": order.amount, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+    "currency": "INR",
+    "name": "Foodbia",
+    "description": "Test Transaction",
+    "image": "https://example.com/your_logo",
+    "order_id": order.id, //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+    "handler": function (response){
+        verifyPayment(response,order)
+    },
+    "prefill": {
+        "name": "Gaurav Kumar",
+        "email": "gaurav.kumar@example.com",
+        "contact": "9999999999"
+    },
+    "notes": {
+        "address": "Razorpay Corporate Office"
+    },
+    "theme": {
+        "color": "#3399cc"
+    }
+};
+var rzp1 = new Razorpay(options);
+rzp1.on('payment.failed', function (response){
+        alert(response.error.code);
+        alert(response.error.description);
+        alert(response.error.source);
+        alert(response.error.step);
+        alert(response.error.reason);
+        alert(response.error.metadata.order_id);
+        alert(response.error.metadata.payment_id);
+});
+rzp1.open();
+}
+
+
+function verifyPayment(payment,order){
+  $.ajax({
+    url:'/verifyPayment',
+    data:{
+      payment,
+      order
+    },
+    method:'post',
+    success:(response)=>{
+      if(response.status){
+        location.href = '/viewOrder'
+      }else{
+        alert('Payment Failed')
+      }
+    }
+  })
+}
+</script>
+</head>

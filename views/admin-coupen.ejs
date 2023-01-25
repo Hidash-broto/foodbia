@@ -1,0 +1,85 @@
+<div class="container-fluid pt-4 px-4">
+  <div class="row ">
+    <div class="col-xl-2">
+
+    </div>
+    <div class="col-sm-12 col-xl-6 ml-5">
+      <a href="/addCoupon" class="btn btn-primary float-right mt-3 mb-4">Add Coupon</a>
+      <table class="table mt-5" id="myTable">
+        <thead>
+          <tr>
+            <th scope="col">No</th>
+            <th scope="col">Name</th>
+            <th scope="col">Discount Amnt</th>
+            <th scope="col">Min Cart Amnt</th>
+            <th scope="col">Start Date</th>
+            <th scope="col">Expiry Date</th>
+            <th scope="col">Option</th>
+          </tr>
+        </thead>
+        <% coupon.forEach((obj,index)=>{ %>
+          <tbody>
+            <tr>
+              <td scope="row">
+                <%= index+1%>
+              </td>
+              <td>
+                <%= obj.name %>
+              </td>
+              <td>
+                <%=obj.DiscountAmount %>
+              </td>
+              <td>
+                <%=obj.MinimumCartAmount %>
+              </td>
+              <td>
+                <%=obj.StartinDate.toLocaleString()%>
+              </td>
+              <td>
+                <%=obj.ExpiringDate.toLocaleString()%>
+              </td>
+              <td> <a href="/editCoupon/<%=obj._id%>"><i class="bi bi-pen"></i></a> <button class="btn btn-primary">                <% if(obj.status=='Enable' ){ %>
+                <i onclick="status('<%=obj._id%>','1')" class="bi bi-lock ml-3"></i>
+                <% }else{ %>
+                  <i onclick="status('<%=obj._id%>','-1')" class="bi bi-unlock"></i>
+                  <% } %></button>
+
+              </td>
+            </tr>
+          </tbody>
+          <% }) %>
+      </table>
+    </div>
+  </div>
+</div>
+
+
+<head>
+
+  <script>
+  
+  function status(id,status) {
+    console.log(status);
+    $.ajax({
+      url:'/changeCouponStatus',
+      method:'post',
+      data:{
+        id,
+        status,
+      },
+      success:(response)=>{
+        console.log(response);
+        location.reload()
+      }
+    })
+  }
+  
+  
+  
+  
+  $(document).ready(function () {
+
+      var table = $('#myTable').DataTable();
+    });
+  </script>
+</head>

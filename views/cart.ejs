@@ -1,0 +1,213 @@
+
+<!-- Image and text -->
+<nav class="navbar navbar-light bg-warning">
+  <a class="navbar-brand" href="/">
+    <img src="//cdn.shopify.com/s/files/1/0553/2824/3758/files/FOODBIA-LOGO.png?v=1668835038&amp;width=150" alt="dt-foodbia" srcset="//cdn.shopify.com/s/files/1/0553/2824/3758/files/FOODBIA-LOGO.png?v=1668835038&amp;width=50 50w, //cdn.shopify.com/s/files/1/0553/2824/3758/files/FOODBIA-LOGO.png?v=1668835038&amp;width=100 100w, //cdn.shopify.com/s/files/1/0553/2824/3758/files/FOODBIA-LOGO.png?v=1668835038&amp;width=150 150w" width="150" height="55.55555555555556" class="header__heading-logo">
+  </a>
+  <% if(user){ %> 
+  <a href="/wishlist" class="btn btn-primary" style="border-radius:10px ;width: 100px;">wishlist</a>
+  <a href="/logout" class="btn btn-primary " style="border-radius:10px ;width: 100px;">logout</a>
+  <a href="/userProfile" class="btn btn-success"><i class="bi bi-person"></i></a>
+  <% }else{ %>
+    <a href="/wishlist" class="btn btn-primary " style="border-radius:10px ;width: 100px;">logout</a>
+    <% } %>  
+</nav>
+<section class="h-100 h-custom" style="background-color: #595959;">
+  <div class="container py-5 h-100">
+    <div class="row d-flex justify-content-center align-items-center h-100">
+      <div class="col-12">
+        <div class="card card-registration card-registration-2" style="border-radius: 15px;">
+          <div class="card-body p-0">
+            <div class="row g-0">
+              <div class="col-lg-8">
+                <div class="p-5">
+                  <div class="d-flex justify-content-between align-items-center mb-5">
+                    <h1 class="fw-bold mb-0 text-black">Shopping Cart</h1>
+                  </div>
+                  <hr class="my-4">
+                  <% const length = prd.cart.items.length%>
+                   
+                  <% for(var i=0;i<prd.cart.items.length;i++){ %> 
+                    <% const prds = prd.cart.items[i] %>
+
+                  <div class="row mb-4 d-flex justify-content-between align-items-center">
+                    <div class="col-md-2 col-lg-2 col-xl-2">
+                      <img
+                        src="/image/<%=prds.productId.image%>"
+                        class="img-fluid rounded-3" alt="">
+                    </div>
+                    <div class="col-md-3 col-lg-3 col-xl-3">
+                      <h6 class="text-muted"><%= prds.productId.name %></h6>
+                      <h6 class="text-black mb-0"><%= prds.productId.cuisine %>  </h6>
+                    </div>
+                    <div class="col-md-3 col-lg-3 col-xl-2 d-flex">
+                      <button onclick="addCart('<%=prds.productId._id%>','-1')" class="btn btn-link px-2">
+                        <i class="fas fa-minus"></i>
+        
+                      </button>
+                      <input type="text" name="qty" id="<%= prds.productId._id %>" maxlength="12" value="<%= prds.qty %>" title="Quantity:"
+                                            class="input-text qty" style="width:30px ;">
+                      <button class="btn btn-link px-2"
+                      onclick="addCart('<%=prds.productId._id%>','1')">
+                        <i class="fas fa-plus"></i>
+                      </button>
+                    </div>
+                    <div class="col-md-3 col-lg-2 col-xl-2 offset-lg-1">
+                      <h6 class="mb-0"><%= prds.productId.price %> </h6>
+                    </div>
+                    <div class="col-md-1 col-lg-1 col-xl-1 text-end">
+                      <button onclick="addCart('<%=prds.productId._id%>','-2')"><i class="fas fa-times"></i></button>
+                    </div>
+                  </div>
+                  <% } %> 
+
+                  <hr class="my-4">
+                  <div class="pt-5">
+                    <h6 class="mb-0"><a href="/shopNow " class="text-body"><i
+                          class="fas fa-long-arrow-alt-left me-2"></i>Back to shop</a></h6>
+                  </div>
+                </div>
+              </div>
+              <div class="col-lg-4 bg-grey">
+                <div class="p-5">
+                  <h3 class="fw-bold mb-5 mt-2 pt-1">Summary</h3>
+                  <hr class="my-4">
+
+                  <h5 class="text-uppercase mb-3">Give code</h5>
+                  <div class="mb-5">
+                    <div class="form-outline">
+                      <form id="Coupon">
+                      <input type="text" class="form-control form-control-lg" name="code">
+                      <h5 class="text-danger" id="coupon-error"></h5>
+                      <label class="form-label" for="form3Examplea2">Enter your code</label>
+                      <button type="submit" class="btn btn-primary float-right mt-1">Apply</button>
+                    </form>
+                    </div>
+                  </div>
+                  <div class="d-flex justify-content-between mb-5">
+                    <h5 class="text-uppercase">Actual price</h5>
+                    <h5> <%= prd.cart.totalprice %> </h5>
+                  </div>
+                  <hr class="my-4">
+
+                  <div class="d-flex justify-content-between mb-5">
+                    <h5 class="text-uppercase">Total price</h5>
+                    <h5 id="total"> <%= prd.cart.totalprice %> </h5>
+                  </div>
+
+                  <a href="/checkout"><button type="button" class="btn btn-dark btn-block btn-lg"
+                    data-mdb-ripple-color="dark">Checkout</button></a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  @media (min-width: 1025px) {
+.h-custom {
+height: 100vh !important;
+}
+}
+
+.card-registration .select-input.form-control[readonly]:not([disabled]) {
+font-size: 1rem;
+line-height: 2.15;
+padding-left: .75em;
+padding-right: .75em;
+}
+
+.card-registration .select-arrow {
+top: 13px;
+}
+
+.bg-grey {
+background-color: #eae8e8;
+}
+
+@media (min-width: 992px) {
+.card-registration-2 .bg-grey {
+border-top-right-radius: 16px;
+border-bottom-right-radius: 16px;
+}
+}
+
+@media (max-width: 991px) {
+.card-registration-2 .bg-grey {
+border-bottom-left-radius: 16px;
+border-bottom-right-radius: 16px;
+}
+}
+
+</style>
+<head>
+  <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js">
+  </script>
+
+
+<script>
+  function addCart(proId,cnt){
+    const quantity = document.getElementById(proId).value
+    const count = parseInt(cnt)
+    $.ajax({
+      url:'/qtyChange',
+      method:'POST',
+      data:{
+        productId:proId,
+        count:count,
+        qty:quantity
+      },
+      success:(res)=>{
+        console.log(res);
+        // if(res.access){
+          if(res.remove){
+            Swal.fire('Deleted Product from Cart')
+            setTimeout(()=>location.reload(),2000)
+          }else{
+            document.getElementById(proId).value=res.status
+            document.getElementById('total').innerHTML=res.total
+          }
+      }
+    })
+  }
+
+
+  $('#Coupon').submit((e)=>{
+    e.preventDefault();
+    $.ajax({
+      url:'/codeApply',
+      method:'post',
+      data:$('#Coupon').serialize(),
+      success:(data) => {
+                if (data.expiry) {
+                    $('#coupon-error').html('sorry...this coupon is expired!')
+                } else {
+                    $('#coupon-error').html('')
+                    if (data.error == true) {
+                        $('#coupon-error').html('coupon not found!')
+                    } else {
+                        if (data.status) {
+                            $('#coupon-error').html('')
+                            $('#total').html(data.total)
+                        } else {
+                            if (data.used) {
+                                $('#coupon-error').html('Already Used!')
+                            }
+                            if (data.status == false) {
+                                console.log(data.min);
+                                $('#coupon-error').html('minium cart amount is ' + data.min)
+                            }
+                        }
+                    }
+                    $('#total').html(data.total)
+                }
+            }
+    })
+  })
+</script>
+</head>

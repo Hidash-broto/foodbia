@@ -1,0 +1,165 @@
+<form class="row login_form" action="/signup" method="post" id="signupForm" novalidate>
+  <div class="col-md-12 form-group">
+      <input type="text" class="form-control"  placeholder="Fullname" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Fullname'" required>
+      <p id="usercheck" style="color: red;">
+          **Username is missing
+      </p>
+  </div>
+  <div class="col-md-12 form-group">
+      <input type="email" class="form-control <%= validateErrors.find(e=>e.param=='email') ? 'invalid' : '' %>" id="email" name="email" value="<%= oldInput.email %>" placeholder="Email Address" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Email Address'" required>
+      <small id="emailvalid" class="form-text
+      text-muted invalid-feedback">
+              Your email must be a valid email
+          </small>
+  </div>
+  <div class="col-md-12 form-group">
+      <input type="tel" class="form-control <%= validateErrors.find(e=>e.param=='phone') ? 'invalid' : '' %>" id="phone" name="phone" value="<%= oldInput.phone %>" placeholder="Mobile number" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Mobile number'" required>
+  </div>
+  <div class="col-md-12 form-group">
+      <input type="password" class="form-control <%= validateErrors.find(e=>e.param=='password') ? 'invalid' : '' %>" id="password" name="password" value="<%= oldInput.password %>" placeholder="Password" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Password'" required>
+      <p id="passcheck" style="color: red;">
+          **Please Fill the password
+      </p>
+  </div>
+  <div class="col-md-12 form-group">
+      <input type="password" class="form-control <%= validateErrors.find(e=>e.param=='confirmPassword') ? 'invalid' : '' %>" id="confirmPassword" name="confirmPassword" value="<%= oldInput.confirmPassword %>" placeholder="Confirm Password" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Confirm Password'" required>
+      <p id="conpasscheck" style="color: red;">
+          **Password didn't match
+      </p>
+  </div>
+  
+  <div class="col-md-12 form-group">
+      <button type="submit" id="submitbtn" value="submit" class="primary-btn">Create an account</button>
+      
+  </div>
+</form>
+
+
+
+
+
+<script>
+$(document).ready(function () {
+// Validate Username
+$("#usercheck").hide();
+let usernameError = true;
+$("#name").keyup(function () {
+validateUsername();
+});
+
+function validateUsername() {
+let usernameValue = $("#name").val();
+if (usernameValue.length == "") {
+$("#usercheck").show();
+usernameError = false;
+return false;
+} else if (usernameValue.length < 3 || usernameValue.length > 10) {
+$("#usercheck").show();
+$("#usercheck").html("**length of username must be between 3 and 10");
+usernameError = false;
+return false;
+} else {
+$("#usercheck").hide();
+}
+}
+
+//   Validate Email
+const email = document.getElementById("email");
+email.addEventListener("blur", () => {
+let regex = /^([\-\.0-9a-zA-Z]+)@([\-\.0-9a-zA-Z]+)\.([a-zA-Z]){2,7}$/;
+let s = email.value;
+if (regex.test(s)) {
+email.classList.remove("is-invalid");
+emailError = true;
+} else {
+email.classList.add("is-invalid");
+emailError = false;
+}
+});
+
+// Validate Password
+$("#passcheck").hide();
+let passwordError = true;
+$("#password").keyup(function () {
+validatePassword();
+});
+async function validatePassword () {
+let passwordValue = $("#password").val();
+if (passwordValue.length == "") {
+$("#passcheck").show();
+passwordError = false;
+return false;
+}
+if (passwordValue.length < 3 || passwordValue.length > 10) {
+$("#passcheck").show();
+$("#passcheck").html(
+"**length of your password must be between 3 and 10"
+);
+$("#passcheck").css("color", "red");
+passwordError = false;
+return false;
+} 
+let res= await containsSpecialChars(passwordValue)
+console.log(res);
+if(res===false){
+$("#passcheck").show();
+$("#passcheck").html(
+"Password must contain special characters"
+);
+$("#passcheck").css("color", "red");
+passwordError = false;
+return false;
+}
+else {
+$("#passcheck").hide();
+}
+}
+function containsSpecialChars(str) {
+console.log('ivde vannu');
+const specialChars = /[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
+return specialChars.test(str);
+}
+// Validate Confirm Password
+$("#conpasscheck").hide();
+let confirmPasswordError = true;
+$("#confirmPassword").keyup(function () {
+validateConfirmPassword();
+});
+function validateConfirmPassword() {
+let confirmPasswordValue = $("#confirmPassword").val();
+let passwordValue = $("#password").val();
+if (passwordValue != confirmPasswordValue) {
+$("#conpasscheck").show();
+$("#conpasscheck").html("**Password didn't Match");
+$("#conpasscheck").css("color", "red");
+confirmPasswordError = false;
+return false;
+} else {
+$("#conpasscheck").hide();
+}
+}
+
+// Submit button
+$("#submitbtn").click(function () {
+validateUsername();
+validatePassword();
+validateConfirmPassword();
+validateEmail();
+if (
+usernameError == true &&
+passwordError == true &&
+confirmPasswordError == true &&
+emailError == true
+) {
+$('#signupForm').submit(function (evt) {
+evt.preventDefault();
+window.history.back();
+});
+return true;
+} else {  
+return false;
+}
+});
+});
+
+</script>

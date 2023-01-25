@@ -1,0 +1,135 @@
+<div class="container-fluid pt-4 px-4">
+    <div class="row ">
+        <div class="col-xl-2">
+
+        </div>
+<div class="col-sm-12 col-xl-6 ml-5">
+<table class="table table-bordered mt-3">
+    <thead>
+      <tr>
+        <th scope="col">Date</th>
+        <th scope="col">Address</th>
+        <th scope="col">Amount</th>
+        <th scope="col">Payment</th>
+        <th scope="col">Status</th>
+        <th scope="col">Options</th>
+      </tr>
+    </thead>
+    <% orders.forEach((order)=>{ %>
+    <tbody>
+      <tr>
+        <td><%= order.date %></td>
+        <td><%= order.address %></td>
+        <td><%= order.totalPrice%></td>
+        <td><%= order.paymentMethod %></td>
+        <td id="<%=order._id%>"><%=order.Status%></td>
+        <td><button onclick="prdShow('<%=order._id%>')" type="button" class="btn btn-primary" data-toggle="modal" data-target="#bt<%= order._id %> ">
+          View Products
+        </button>
+        <button id="<%=order.date%>" onclick="drop('<%=order._id%>','<%=order.date%>')" type="button" class="btn btn-danger mt-2" >
+          <% if(order.Status == 'Cancelled'){ %>
+           <%=order.Status%>
+         <% }else{ %>
+          Cancell Order
+        <% } %> 
+        </button>
+        <a href="/invoice/<%=order._id%>" class="btn btn-success mt-2"><i class="bi bi-printer"></i></a>
+      </td>
+      </tr>
+    </tbody>
+    <% }) %> 
+</table>
+
+
+<% orders.forEach((order)=>{ %>
+      <div class="modal fade" id="bt<%=order._id%>" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLabel">Products</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <table class="table table-bordered mt-3">
+                <thead>
+                  <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">Price</th>
+                    <th scope="col">Type</th>
+                    <th scope="col">image</th>
+                  </tr> 
+                </thead>
+                <% order.productDt.forEach((prd)=>{ %> 
+                  <h1><%= prd %></h1>
+                    <tbody>
+                  <tr>
+                    <td><%= prd.productId %></td>
+                    <td><%= prd.productId %></td>
+                    <td><%= prd.productId %></td>
+                    <td><img src="/image/<%=prd.productId%>" style="width: 100px;" alt=""></td>
+                  </tr>
+                </tbody>
+                <% }) %> 
+            </table>
+            </div>
+
+          </div>
+        </div>
+      </div>
+  </div>
+  </div>
+  </div>
+  <% }) %> 
+
+
+  <head>
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+     function prdShow (id){
+      
+      $.ajax({
+        method:'post',
+        url:'/prdModal',
+        data:{
+          productId:id
+        },
+        success:(order)=>{
+          console.log(order);
+        }
+      })
+     }
+     
+     function drop(params,date) {
+      Swal.fire({
+  title: 'Do you want to save the changes?',
+  showDenyButton: true,
+  showCancelButton: true,
+  confirmButtonText: 'Save',
+  denyButtonText: `Don't save`,
+}).then((result) => {
+  /* Read more about isConfirmed, isDenied below */
+  if (result.isConfirmed) {
+    $.ajax({
+        url:'/cancelOrder',
+        method:'post',
+        data:{
+          orderId:params
+        },
+        success:(res)=>{
+          if (res) {
+            console.log(params);
+            document.getElementById(params).innerText = 'Cancelled'
+            document.getElementById(date).innerText = 'Cancelled'
+          }
+        }
+      })
+    Swal.fire('Saved!', '', 'success')
+  } else if (result.isDenied) {
+    Swal.fire('Changes are not saved', '', 'info')
+  }
+})
+     }
+    </script>
+  </head>

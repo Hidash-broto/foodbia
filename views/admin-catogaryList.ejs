@@ -1,0 +1,60 @@
+
+<body>
+<div class="container-fluid pt-4 px-4">
+    <div class="row ">
+        <div class="col-xl-2">
+
+        </div>
+<div class="col-sm-12 col-xl-6 ml-5">
+  <a href="/categoryForm" class="btn btn-primary">Add</a>
+<table class="table table-bordered mt-3">
+    <thead>
+      <tr>
+        <th scope="col">Name</th>
+        <th scope="col">Discription</th>
+        <th scope="col">Image</th>
+        <th scope="col">Option</th>
+      </tr>
+    </thead>
+    <% Cat.forEach((category)=>{ %>
+    <tbody>
+      <tr>
+        <th scope="row"><%= category.name%> </th>
+        <td><%= category.discription%> </td>
+        <td><img style="width:100px ;" src="/image/<%=category.img%> " alt=""></td>
+        <td><button  onclick="Unlist('<%=category._id%>')" id="<%= category._id %>" class="btn btn-primary"><%= category.status %> </button>
+       <a href="/categoryEdit/<%= category._id %> "> <button id="<%= category._id %>" class="btn btn-warning mt-3">Edit</button></a></td>
+      </tr>
+    </tbody>
+ <% }) %> 
+  </table>
+</div>
+</div>
+</div>
+</body>
+
+
+
+<head>
+  <script>
+    function Unlist(Id){
+      const status = document.getElementById(Id).innerHTML
+      $.ajax({
+        url:'/unlist',
+        method:'post',
+        data:{
+          catId:Id,
+          Status:status
+        },
+        success:(response)=>{
+          console.log(response);
+
+          if(response.stts){
+            console.log('huhuhu');
+            document.getElementById(Id).innerHTML = response.chng
+          }
+        }
+      })
+    }
+  </script>
+  </head>

@@ -1,0 +1,133 @@
+<div class="container-fluid pt-4 px-4">
+    <div class="row ">
+        <div class="col-xl-2">
+
+        </div>
+        <div class="col-sm-12 col-xl-6 ml-5">
+            <form id="checkout-form">
+            <section class="row justify-content-center " style="margin-top: 2em;">
+                <div class="col-9 col-sm-8 col-md-8 col-lg-12">
+                    <% for(var i=0;i<address.length;i++){ %>
+                        <div class="card mt-5">
+                            <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <h5 class="card-title">Address <%= i+1 %>
+                                        </h5>
+                                        <input class="checkout_input_checkbox" type="radio" id="html" name="address"
+                                            value="<%=address[i].name%>, <%=address[i].country%>, <%=address[i].streetAddress%>, <%=address[i].town %>, <%=address[i].state%>, PinCode:<%=address[i].pincode%>, PhoneNo:<%=address[i].phone%>">
+                                    </div>
+                                    <p class="card-text w-75">
+                                        <%=address[i].name%>, <%=address[i].country%>, <%=address[i].streetAddress%>,
+                                                    <%=address[i].town %>, <%=address[i].state%>, PinCode:
+                                                            <%=address[i].pincode%>, PhoneNo:<%=address[i].phone%>
+                                    </p>
+                                    <div class="d-flex justify-content-between">
+
+
+
+                                    </div>
+
+                            </div>
+                        </div>
+                        <% } %>
+
+                </div>
+            </section>
+            <h1 class="mt-5 text-primary">Payment Method</h1>
+            <select name="paymentMethod" class="form-select mb-5" aria-label="Default select example">
+                <option selected>Choose</option>
+                <option value="Razorpay">Razorpay</option>
+                <option value="Cash on Delivery">Cash on Delivery</option>
+              </select>
+
+            <button type="submit">submit</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<head>
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    $("#checkout-form").submit((e)=>{
+      e.preventDefault()
+      $.ajax({
+        url:'/place-order',
+        method:'post',
+        data:$('#checkout-form').serialize(),
+        success:(response)=>{
+          console.log(response);
+          if(response == 'placed'){
+            Swal.fire({
+            icon: 'success',
+            title: 'Placed',
+            showConfirmButton: false,
+            timer: 1500
+  })
+    location.href = '/viewOrder'
+          }else{
+            console.log('huhuh');
+            pay(response.order)
+          }
+        }
+      })
+    })
+  
+  function pay(order){
+    var options = {
+      "key": 'rzp_test_4Ag1DMzpvRdaUz', // Enter the Key ID generated from the Dashboard
+      "amount": order.amount, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+      "currency": "INR",
+      "name": "Foodbia",
+      "description": "Test Transaction",
+      "image": "https://example.com/your_logo",
+      "order_id": order.id, //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+      "handler": function (response){
+          verifyPayment(response,order)
+      },
+      "prefill": {
+          "name": "Gaurav Kumar",
+          "email": "gaurav.kumar@example.com",
+          "contact": "9999999999"
+      },
+      "notes": {
+          "address": "Razorpay Corporate Office"
+      },
+      "theme": {
+          "color": "#3399cc"
+      }
+  };
+  var rzp1 = new Razorpay(options);
+  rzp1.on('payment.failed', function (response){
+          alert(response.error.code);
+          alert(response.error.description);
+          alert(response.error.source);
+          alert(response.error.step);
+          alert(response.error.reason);
+          alert(response.error.metadata.order_id);
+          alert(response.error.metadata.payment_id);
+  });
+  rzp1.open();
+  }
+  
+  
+  function verifyPayment(payment,order){
+    $.ajax({
+      url:'/verifyPayment',
+      data:{
+        payment,
+        order
+      },
+      method:'post',
+      success:(response)=>{
+        if(response.status){
+          location.href = '/viewOrder'
+        }else{
+          alert('Payment Failed')
+        }
+      }
+    })
+  }
+  </script>
+  </head>
