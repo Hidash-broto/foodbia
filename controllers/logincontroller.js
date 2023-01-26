@@ -1,13 +1,13 @@
 const bcrypt = require('bcryptjs');
 const { name } = require('ejs');
-const oroducts = require('../models/wishlistScheema');
+const oroducts = require('../models/wishlistscheema');
 const User = require('../models/user');
 const Product = require('../models/product');
-const Order = require('../models/orderSchema');
-const gnrtRazo = require('../generateRazorpay/generateRazorpay');
-const Catogaries = require('../models/catogarySchema');
-const Coupon = require('../models/couponSchema');
-const couponSchema = require('../models/couponSchema');
+const Order = require('../models/orderschema');
+const gnrtRazo = require('../generaterazorpay/generaterazorpay');
+const Catogaries = require('../models/catogaryschema');
+const Coupon = require('../models/couponschema');
+const couponSchema = require('../models/couponschema');
 
 module.exports = {
   registerView: (req, res) => {
@@ -183,7 +183,7 @@ module.exports = {
     try {
       const { user } = req.session;
       const category = await Catogaries.find();
-      res.render('shopNow', { user, admin: false, category });
+      res.render('shopnow', { user, admin: false, category });
     } catch (error) {
       console.log(error);
     }
@@ -197,7 +197,7 @@ module.exports = {
       const products = await Product.find({ category: category.name });
       console.log(category, 'cat');
       console.log(products, 'pro');
-      res.render('productList', { products, admin: false, user });
+      res.render('productlist', { products, admin: false, user });
     } catch (error) {
       console.log(error);
     }
@@ -307,9 +307,9 @@ module.exports = {
       const { address } = user;
       if (user.address.length > 0) {
         console.log(address);
-        res.render('addressSelectionPage', { admin: false, address });
+        res.render('addressselectionpage', { admin: false, address });
       } else {
-        res.render('addAddressForm', { admin: false, status: true, valid });
+        res.render('addaddressform', { admin: false, status: true, valid });
       }
     } catch (error) {
       console.log(error);
@@ -350,7 +350,7 @@ module.exports = {
       const { user } = req.session;
       const orders = await Order.find({ userId: user._id }).populate('productDt.productId');
       console.log(orders);
-      res.render('viewOrder', { admin: false, orders });
+      res.render('vieworder', { admin: false, orders });
     } catch (error) {
       console.log(error);
     }
@@ -413,7 +413,7 @@ module.exports = {
       const { user } = req.session;
       User.findById(user._id).then((usr) => {
         console.log(usr);
-        res.render('userProfile', { admin: false, usr });
+        res.render('userprofile', { admin: false, usr });
       });
     } catch (error) {
       console.log(error);
@@ -424,7 +424,7 @@ module.exports = {
       const valid = req.flash('err');
       const userId = req.session.user._id;
       User.findById(userId).then((usr) => {
-        res.render('changePassword', { admin: false, usr, valid });
+        res.render('changepassword', { admin: false, usr, valid });
       });
     } catch (error) {
       console.log(error);
@@ -470,7 +470,7 @@ module.exports = {
   addAddress: (req, res) => {
     try {
       const valid = req.flash('err');
-      res.render('addAddressForm', { admin: false, status: false, valid });
+      res.render('addaddressform', { admin: false, status: false, valid });
     } catch (error) {
       console.log(error);
     }
@@ -495,7 +495,7 @@ module.exports = {
         }).then(() => {
           console.log(req.body.status);
           if (req.body.status) {
-            res.render('addressSelectionPage', { admin: false, address });
+            res.render('addressselectionpage', { admin: false, address });
           } else {
             res.redirect('/userProfile');
           }
@@ -577,7 +577,7 @@ module.exports = {
       console.log('HIhihi');
       const productId = req.query.id;
       const product = await Product.findById(productId);
-      res.render('productDt', { admin: false, product, users: true });
+      res.render('productdt', { admin: false, product, users: true });
     } catch (error) {
       console.log(error);
     }

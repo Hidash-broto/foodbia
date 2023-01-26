@@ -3,10 +3,10 @@ const { name } = require('ejs');
 const { json } = require('body-parser');
 const _ = require('underscore');
 const User = require('../models/user');
-const Catogary = require('../models/catogarySchema');
+const Catogary = require('../models/catogaryschema');
 const product = require('../models/product');
-const orderSchema = require('../models/orderSchema');
-const Coupon = require('../models/couponSchema');
+const orderSchema = require('../models/orderschema');
+const Coupon = require('../models/couponschema');
 
 module.exports = {
   catogaryForm: (req, res) => {
@@ -20,7 +20,7 @@ module.exports = {
     try {
       const { admin } = req.session;
       const users = await User.find();
-      res.render('admin-userList', { admin, users, admin: true });
+      res.render('admin-userlist', { admin, users, admin: true });
     } catch (error) {
       console.log(error);
     }
@@ -79,7 +79,7 @@ module.exports = {
       const category = await Catogary.find();
       cat.cat = category;
       const Cat = cat.cat;
-      res.render('admin-catogaryList', { Cat, admin: true });
+      res.render('admin-catogarylist', { Cat, admin: true });
     } catch (error) {
       console.log(error);
     }
@@ -111,7 +111,7 @@ module.exports = {
     try {
       const Id = req.params.id;
       const Doc = await Catogary.findById(Id);
-      res.render('admin-catogaryEdit', { admin: false, Doc });
+      res.render('admin-catogaryedit', { admin: false, Doc });
     } catch (error) {
       console.log(error);
     }
@@ -151,7 +151,7 @@ module.exports = {
   adminProductView: async (req, res) => {
     try {
       const products = await product.find();
-      res.render('admin-productList', { products, admin: true });
+      res.render('admin-productlist', { products, admin: true });
     } catch (error) {
       console.log(error);
     }
@@ -159,7 +159,7 @@ module.exports = {
   addProductForm: async (req, res) => {
     try {
       const cat = await Catogary.find();
-      res.render('admin-productAddForm', { admin: true, cat });
+      res.render('admin-productaddform', { admin: true, cat });
     } catch (error) {
       console.log(error);
     }
@@ -204,7 +204,7 @@ module.exports = {
     try {
       const Id = req.params.id;
       product.findById(Id).then((pro) => {
-        res.render('admin-proEditForm', { admin: false, pro });
+        res.render('admin-proeditform', { admin: false, pro });
       });
     } catch (error) {
       console.log(error);
@@ -249,7 +249,7 @@ module.exports = {
   orderManagementView: async (req, res) => {
     try {
       const orders = await orderSchema.find();
-      res.render('ordersView', { orders, admin: true });
+      res.render('ordersview', { orders, admin: true });
     } catch (error) {
       console.log(error);
     }
@@ -295,7 +295,7 @@ module.exports = {
           },
         },
       ]);
-      res.render('admin-dayReport', { admin: true, dayReport });
+      res.render('admin-dayreport', { admin: true, dayReport });
     } catch (error) {
       console.log(error);
     }
@@ -325,7 +325,7 @@ module.exports = {
         return newOne;
       });
 
-      res.render('admin-monthReport', { admin: true, sales });
+      res.render('admin-monthreport', { admin: true, sales });
     } catch (error) {
       console.log(error);
     }
@@ -348,7 +348,7 @@ module.exports = {
 
         },
       ]);
-      res.render('admin-yearReport', { admin: true, year });
+      res.render('admin-yearreport', { admin: true, year });
     } catch (error) {
       console.log(error);
     }
@@ -471,7 +471,7 @@ module.exports = {
   },
   addCoupon: (req, res) => {
     try {
-      res.render('admin-addCoupon', { admin: true });
+      res.render('admin-addcoupon', { admin: true });
     } catch (error) {
       console.log(error);
     }
@@ -508,7 +508,7 @@ module.exports = {
       const { id } = req.params;
       console.log(id);
       const coupon = await Coupon.findById(id);
-      res.render('admin-editCoupon', { admin: false, coupon });
+      res.render('admin-editcoupon', { admin: false, coupon });
     } catch (error) {
       console.log(error);
     }

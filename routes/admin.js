@@ -5,13 +5,13 @@ const {
   postCatEdit, adminProductView, addProductForm, addProduct, dropProduct, editProductView,
   orderManagementView, updateProduct, changeStatus, dayReport, monthReport, yearReport, AdminDash,
   CouponView, addCoupon, postCouponAdd, editCoupon, postEditCoupon, changeCouponStatus,
-} = require('../controllers/adminController');
-const { verifyAdmin } = require('../middleWare/auth');
+} = require('../controllers/admincontroller');
+const { verifyAdmin } = require('../middleware/auth');
 
 router.get('/userList', verifyAdmin, userList);
 router.get('/admin/logout', logoutAdmin);
 router.get('/categoryForm', verifyAdmin, catogaryForm);
-router.get('/categoryEdit/:id', verifyAdmin, catogaryEdit);
+router.get('/categoryEdit/:id', verifyAdmin, catogaryEdit); 
 router.get('/addcategory', verifyAdmin, viewCategory);
 router.get('/products', verifyAdmin, adminProductView);
 router.get('/addProductView', verifyAdmin, addProductForm);

@@ -1,4 +1,4 @@
-const userVerify = require('../middleWare/auth');
+const userVerify = require('../middleware/auth');
 
 const {
   // eslint-disable-next-line max-len
@@ -7,7 +7,7 @@ const {
   wishlistViewer, cartView, addWishlist, wishDrop, addtoCart, changeQty, checkoutView,
   placeOrder, viewOrder, verifyPayment, orderViewProducts, productList, cancelOrder, userProfile,
   changePassword, postChangePassword, addAddress, postAddAddress, codeApply, invoice, productDt,
-} = require('../controllers/loginController');
+} = require('../controllers/logincontroller');
 // eslint-disable-next-line import/order
 const router = require('express').Router();
 
