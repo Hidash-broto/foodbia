@@ -1,0 +1,88 @@
+<div class="container-fluid pt-4 px-4">
+  <div class="row">
+    <div class="col-xl-2"></div>
+    <div class="col-sm-12 col-xl-9 ml-5">
+
+      <a href="bannerAdd" class="btn btn-primary float-right mt-1 mb-4">Add Banner</a>
+
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th scope="col">No</th>
+            <th scope="col">Image</th>
+            <th scope="col">Name</th>
+            <th scope="col">Url</th>
+            <th scope="col">Description</th>
+            <th scope="col">Option</th>
+          </tr>
+        </thead>
+        <%banner.forEach((obj, index)=>{%>
+          <tbody>
+            <tr>
+              <th scope="row">
+                <%= index+1 %>
+              </th>
+              <td><img style="width: 100px;" src="/image/<%=obj.image%>"></td>
+              <td>
+                <%= obj.name %>
+              </td>
+              <td>
+                <%= obj.url %>
+              </td>
+              <td>
+                <%= obj.discription%>
+              </td>
+              <td>
+                <a href="editBanner/<%=obj._id%>" ><i class="bi bi-pen"></i></a>
+                <i onclick="remove('removeBanner/<%=obj._id%>')" class="bi bi-trash"></i>
+              </td>
+            </tr>
+          </tbody>
+          <%})%>
+      </table>
+    </div>
+  </div>
+</div>
+
+<head>
+</head>
+
+
+<head>
+  <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    function remove(params) {
+      Swal.fire({
+        title: "Are you sure?",
+        showDenyButton: true,
+        showCancelButton: true,
+        confirmButtonText: "Yes",
+        denyButtonText: `No`,
+      }).then((result) => {
+        /* Read more about isConfirmed, isDenied below */
+        if (result.isConfirmed) {
+          Swal.fire("Deleted!", "", "success");
+          $.ajax({
+            url: params,
+            methop: 'get',
+            data: {
+              BannerId: params
+            },
+            success: (resp) => {
+              if (resp) {
+                location.reload();
+              }
+            }
+          })
+        } else if (result.isDenied) {
+          Swal.fire("Deleted", "", "info");
+        }
+      });
+
+
+
+      console.log(params);
+
+    }
+  </script>
+</head>

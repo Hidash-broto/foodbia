@@ -1,3 +1,4 @@
+<%- include('./userparsial/nav') %> 
 <div class="container-fluid pt-4 px-4">
     <div class="row ">
         <div class="col-xl-2">
@@ -62,13 +63,12 @@
                   </tr> 
                 </thead>
                 <% order.productDt.forEach((prd)=>{ %> 
-                  <h1><%= prd %></h1>
                     <tbody>
                   <tr>
-                    <td><%= prd.productId %></td>
-                    <td><%= prd.productId %></td>
-                    <td><%= prd.productId %></td>
-                    <td><img src="/image/<%=prd.productId%>" style="width: 100px;" alt=""></td>
+                    <td><%= prd.productId.name %></td>
+                    <td><%= prd.productId.price%></td>
+                    <td><%= prd.productId.type %></td>
+                    <td><img src="/image/<%=prd.productId.image[0]%>" style="width: 100px;" alt=""></td>
                   </tr>
                 </tbody>
                 <% }) %> 

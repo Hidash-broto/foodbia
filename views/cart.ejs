@@ -1,17 +1,4 @@
-
-<!-- Image and text -->
-<nav class="navbar navbar-light bg-warning">
-  <a class="navbar-brand" href="/">
-    <img src="//cdn.shopify.com/s/files/1/0553/2824/3758/files/FOODBIA-LOGO.png?v=1668835038&amp;width=150" alt="dt-foodbia" srcset="//cdn.shopify.com/s/files/1/0553/2824/3758/files/FOODBIA-LOGO.png?v=1668835038&amp;width=50 50w, //cdn.shopify.com/s/files/1/0553/2824/3758/files/FOODBIA-LOGO.png?v=1668835038&amp;width=100 100w, //cdn.shopify.com/s/files/1/0553/2824/3758/files/FOODBIA-LOGO.png?v=1668835038&amp;width=150 150w" width="150" height="55.55555555555556" class="header__heading-logo">
-  </a>
-  <% if(user){ %> 
-  <a href="/wishlist" class="btn btn-primary" style="border-radius:10px ;width: 100px;">wishlist</a>
-  <a href="/logout" class="btn btn-primary " style="border-radius:10px ;width: 100px;">logout</a>
-  <a href="/userProfile" class="btn btn-success"><i class="bi bi-person"></i></a>
-  <% }else{ %>
-    <a href="/wishlist" class="btn btn-primary " style="border-radius:10px ;width: 100px;">logout</a>
-    <% } %>  
-</nav>
+<%- include('./userparsial/nav') %> 
 <section class="h-100 h-custom" style="background-color: #595959;">
   <div class="container py-5 h-100">
     <div class="row d-flex justify-content-center align-items-center h-100">
@@ -211,3 +198,5 @@ border-bottom-right-radius: 16px;
   })
 </script>
 </head>
+
+\

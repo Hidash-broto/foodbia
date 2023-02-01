@@ -13,6 +13,7 @@ const mongoose = require('mongoose');
 const multer = require('multer');
 const morgan = require('morgan');
 const flash = require('connect-flash');
+
 const location = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, 'public/image');
@@ -35,13 +36,14 @@ const fileFilter = (req, file, cb) => {
 };
 
 app.use(flash());
-// app.use(morgan('dev'));
+app.use(morgan('dev'));
 app.use(
   multer({ storage: location, fileFilter }).fields([
     { name: 'image' },
     { maxCount: 3 },
   ]),
 );
+app.use(express.json());
 app.use((req, res, next) => {
   res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate');
   res.header('Expires', '-1');
@@ -56,6 +58,9 @@ app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(expressLayouts);
 app.use(express.static('public'));
+
+
+
 mongoose.set('strictQuery', true);
 const mongo = process.env.MONGO_LAB;
 mongoose.connect(mongo, () => { console.log('DataBase Connected'); });
@@ -65,6 +70,29 @@ app.set('layout', 'layout');
 app.set(express.static('public'));
 app.use('/', require('./routes/login'));
 app.use('/', require('./routes/admin'));
+app.use((req, res, next) => {
+  const error = new Error(`Not found ${req.originalUrl}`);
+  error.status = 404;
+  next(error);
+});
+
+// error handler
+app.use((err, req, res, next) => {
+  console.log(err);
+  // render the error page
+  res.status(err.status || 500);
+  if (err.status == 404) {
+    if (err.admin) {
+      res.render('404_error_admin', { error: err.message, admin: false });
+    } else {
+      res.render('404_error', { error: err.message, admin: false });
+    }
+  } else if (err.admin) {
+    res.render('404_error_admin', { error: 'server down', admin: false });
+  } else {
+    res.render('404_error', { error: 'server down', admin: false });
+  }
+});
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, console.log(`Started Port:${PORT}`));

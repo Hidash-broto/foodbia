@@ -2,7 +2,7 @@
   <div class="container-fluid pt-4 px-4">
     <div class="row">
       <div class="col-xl-2"></div>
-      <div class="col-sm-12 col-xl-6 ml-5">
+      <div class="col-sm-12 col-xl-9 ml-5">
         <a href="/addProductView" class="btn btn-primary">Add Product</a>
         <table class="table table-bordered mt-3">
           <thead>
@@ -17,36 +17,35 @@
             </tr>
           </thead>
           <% products.forEach((product)=>{ %>
-          <tbody>
-            <tr>
-              <td>
-                <img
-                  style="width: 100px"
-                  src="image/<%=product.image[0]%>"
-                  alt=""
-                />
-              </td>
-              <th scope="row"><%= product.name%></th>
-              <td><%= product.price %></td>
-              <td><%= product.type %></td>
-              <td><%= product.category %></td>
-              <td><%= product.flavour %></td>
-              <td>
-                <button
-                  class="btn btn-danger"
-                  onclick="prdRemove('<%=product._id%>')"
-                >
-                  Remove
-                </button>
-                <a
-                  href="/editProduct/<%= product._id %> "
-                  class="btn btn-warning mt-3"
-                  >Edit</a
-                >
-              </td>
-            </tr>
-          </tbody>
-          <% }) %>
+            <tbody>
+              <tr>
+                <td>
+                  <img style="width: 100px" src="image/<%=product.image[0]%>" alt="" />
+                </td>
+                <th scope="row">
+                  <%= product.name%>
+                </th>
+                <td>
+                  <%= product.price %>
+                </td>
+                <td>
+                  <%= product.type %>
+                </td>
+                <td>
+                  <%= product.category %>
+                </td>
+                <td>
+                  <%= product.flavour %>
+                </td>
+                <td>
+                  <button class="btn btn-danger" onclick="prdRemove('<%=product._id%>')">
+                    Remove
+                  </button>
+                  <a href="/editProduct/<%= product._id %> " class="btn btn-warning ">Edit</a>
+                </td>
+              </tr>
+            </tbody>
+            <% }) %>
         </table>
       </div>
     </div>

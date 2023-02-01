@@ -7,6 +7,7 @@ const {
   wishlistViewer, cartView, addWishlist, wishDrop, addtoCart, changeQty, checkoutView,
   placeOrder, viewOrder, verifyPayment, orderViewProducts, productList, cancelOrder, userProfile,
   changePassword, postChangePassword, addAddress, postAddAddress, codeApply, invoice, productDt,
+  postOtp, resendOtp, searching
 } = require('../controllers/logincontroller');
 // eslint-disable-next-line import/order
 const router = require('express').Router();
@@ -29,6 +30,8 @@ router.get('/changePassword', userVerify.verifyUser, changePassword);
 router.get('/addAddress', userVerify.verifyUser, addAddress);
 router.get('/invoice/:id', userVerify.verifyUser, invoice);
 router.get('/productDt', productDt);
+router.get('/resendOtp', resendOtp);
+router.get('/searching', searching);
 router.post('/postChangePassword', userVerify.verifyUser, postChangePassword);
 router.post('/prdModal', userVerify.verifyUser, orderViewProducts);
 router.post('/addcart/:id', userVerify.verifyUser, addtoCart);
@@ -42,5 +45,6 @@ router.post('/verifyPayment', userVerify.verifyUser, verifyPayment);
 router.post('/cancelOrder', userVerify.verifyUser, cancelOrder);
 router.post('/postAddAddress', userVerify.verifyUser, postAddAddress);
 router.post('/codeApply', userVerify.verifyUser, codeApply);
+router.post('/postOtp', postOtp);
 
 module.exports = router;

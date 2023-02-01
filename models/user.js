@@ -32,6 +32,7 @@ const userSchema = new mongoose.Schema({
     totalprice: Number,
   },
   userType: {
+    default: 'Block',
     type: String,
   },
   address: [

@@ -1,5 +1,9 @@
 const bcrypt = require('bcryptjs');
 const { name } = require('ejs');
+const nodemailer = require('nodemailer');
+const sendGridTransport = require('nodemailer-sendgrid-transport');
+const Crypto = require('crypto');
+const { nextTick } = require('process');
 const oroducts = require('../models/wishlistscheema');
 const User = require('../models/user');
 const Product = require('../models/product');
@@ -8,13 +12,27 @@ const gnrtRazo = require('../generaterazorpay/generaterazorpay');
 const Catogaries = require('../models/catogaryschema');
 const Coupon = require('../models/couponschema');
 const couponSchema = require('../models/couponschema');
+const Banner = require('../models/banner');
+const helpers = require('../user helpers/user');
+
+const transporter = nodemailer.createTransport({
+  host: 'smtp.gmail.com',
+  auth: {
+    user: process.env.fEmail,
+    pass: process.env.EMAIL_PASS,
+  },
+});
+
+let newUser;
+let token;
+let email;
 
 module.exports = {
-  registerView: (req, res) => {
+  registerView: async (req, res, next) => {
     try {
       const error = req.flash('err');
       res.render('signup', {
-      // eslint-disable-next-line max-len
+        // eslint-disable-next-line max-len
         signEmpty: req.session.signEmpty,
         confPassword: req.session.confPassword,
         exist: req.session.exist,
@@ -26,33 +44,50 @@ module.exports = {
       req.session.exist = false;
     } catch (error) {
       console.log(error);
+      next(error);
     }
   },
-  loginView: (req, res) => {
+  loginView: (req, res, next) => {
     try {
       const error = req.flash('err');
       res.render('login', { admin: false, error });
     } catch (error) {
       console.log(error);
+      next(error);
     }
   },
-  homePage: (req, res) => {
+  homePage: async (req, res, next) => {
     try {
       const { user } = req.session;
       let count = null;
       if (user) {
         count = user.cart.items.length;
       }
-      res.render('home', { user, count, admin: false });
-    } catch (err) {
-      console.log(err);
+      const banner = await Banner.find();
+      const nwBanner = banner[0];
+      res.render('home', {
+        user, count, admin: false, nwBanner,
+      });
+    } catch (error) {
+      console.log(error);
+      next(error);
     }
   },
-  registerUser: (req, res) => {
+  registerUser: (req, res, next) => {
     try {
+      Crypto.randomBytes(2, (err, buffer) => {
+        if (err) {
+          console.log(err);
+        } else {
+          console.log(buffer);
+          token = buffer.toString('hex');
+          console.log(token, 'JIJI');
+        }
+      });
       const {
-        name, email, password, confirmPassword,
+        name, password, confirmPassword,
       } = req.body;
+      email = req.body.email;
       if (!name || !email || !password || !confirmPassword) {
         req.flash('err', 'Fill the field');
         res.redirect('/signup');
@@ -67,13 +102,11 @@ module.exports = {
         User.findOne({ email }).then((usr) => {
           if (usr) {
             req.session.exist = true;
-            // eslint-disable-next-line no-console
-            console.log('email Exists');
             res.render('signup', {
               name, email, password, confirmPassword, admin: false,
             });
           } else {
-            const newUser = new User({
+            newUser = new User({
               name, email, password, confirmPassword,
             });
             bcrypt.genSalt(10, (err, salt) => {
@@ -83,9 +116,7 @@ module.exports = {
                   throw err;
                 }
                 newUser.password = hash;
-                newUser.save().then(res.redirect('/login'))
-                // eslint-disable-next-line no-shadow, no-console
-                  .catch((err) => console.log(err));
+                helpers.emailOtp(token, email, () => res.render('otpfill', { admin: false, error: false, email }), true);
               });
             });
           }
@@ -93,9 +124,10 @@ module.exports = {
       }
     } catch (error) {
       console.log(error);
+      next(error);
     }
   },
-  loginUser: (req, res) => {
+  loginUser: (req, res, next) => {
     try {
       const { Email, Password } = req.body;
       if (!Email || !Password) {
@@ -127,23 +159,28 @@ module.exports = {
                   res.redirect('/login');
                 }
               });
+            } else {
+              req.flash('err', 'No Account in this Email');
+              res.redirect('/login');
             }
           });
         });
       }
     } catch (error) {
       console.log(error);
+      next(error);
     }
   },
-  logoutUser: (req, res) => {
+  logoutUser: (req, res, next) => {
     try {
       req.session.destroy();
       res.redirect('/');
     } catch (error) {
       console.log(error);
+      next(error);
     }
   },
-  adminLoginView: (req, res) => {
+  adminLoginView: (req, res, next) => {
     try {
       if (req.session.adminLogged) {
         res.render('admin-home', { admin: true });
@@ -155,9 +192,10 @@ module.exports = {
       }
     } catch (error) {
       console.log(error);
+      next(error);
     }
   },
-  adminLogin: (req, res) => {
+  adminLogin: (req, res, next) => {
     try {
       const { EMAIL } = process.env;
       const { PASSWORD } = process.env;
@@ -177,18 +215,20 @@ module.exports = {
       }
     } catch (error) {
       console.log(error);
+      next(error);
     }
   },
-  shopnowView: async (req, res) => {
+  shopnowView: async (req, res, next) => {
     try {
       const { user } = req.session;
       const category = await Catogaries.find();
       res.render('shopnow', { user, admin: false, category });
     } catch (error) {
       console.log(error);
+      next(error);
     }
   },
-  productList: async (req, res) => {
+  productList: async (req, res, next) => {
     try {
       const { user } = req.session;
       const Id = req.params.id;
@@ -200,20 +240,28 @@ module.exports = {
       res.render('productlist', { products, admin: false, user });
     } catch (error) {
       console.log(error);
+      next(error);
     }
   },
-  wishlistViewer: async (req, res) => {
+  wishlistViewer: async (req, res, next) => {
     try {
       const { user } = req.session;
       // eslint-disable-next-line no-underscore-dangle
       const prdDt = await oroducts.find({ userId: user._id }, { productLst: 1, _id: 0 }).populate('productLst');
-      const pd = prdDt[0].productLst;
-      res.render('wishlist', { user, pd, admin: false });
+      console.log(prdDt);
+      if (prdDt.length > 0) {
+        const pd = prdDt[0].productLst;
+        res.render('wishlist', { user, pd, admin: false });
+      } else {
+        const pd = [];
+        res.render('wishlist', { user, pd, admin: false });
+      }
     } catch (error) {
       console.log(error);
+      next(error);
     }
   },
-  cartView: async (req, res) => {
+  cartView: async (req, res, next) => {
     try {
       const { user } = req.session;
       const length = 1;
@@ -225,9 +273,10 @@ module.exports = {
       });
     } catch (error) {
       console.log(error);
+      next(error);
     }
   },
-  addWishlist: async (req, res) => {
+  addWishlist: async (req, res, next) => {
     try {
       const { user } = req.session;
       console.log(req.body);
@@ -259,9 +308,10 @@ module.exports = {
       }
     } catch (error) {
       console.log(error);
+      next(error);
     }
   },
-  wishDrop: async (req, res) => {
+  wishDrop: async (req, res, next) => {
     try {
       const { user } = req.session;
       const prdId = req.body.productId;
@@ -273,9 +323,10 @@ module.exports = {
       });
     } catch (error) {
       console.log(error);
+      next(error);
     }
   },
-  addtoCart: async (req, res) => {
+  addtoCart: async (req, res, next) => {
     try {
       const id = req.session.user._id;
       const useer = await User.findById(id);
@@ -285,9 +336,10 @@ module.exports = {
       });
     } catch (error) {
       console.log(error);
+      next(error);
     }
   },
-  changeQty: async (req, res) => {
+  changeQty: async (req, res, next) => {
     try {
       const id = req.session.user._id;
       const useer = await User.findById(id);
@@ -298,24 +350,28 @@ module.exports = {
       });
     } catch (error) {
       console.log(error);
+      next(error);
     }
   },
-  checkoutView: (req, res) => {
+  checkoutView: (req, res, next) => {
     try {
       const valid = req.flash('err');
       const { user } = req.session;
       const { address } = user;
       if (user.address.length > 0) {
         console.log(address);
-        res.render('addressselectionpage', { admin: false, address });
+        res.render('addressselectionpage', { admin: false, address, user });
       } else {
-        res.render('addaddressform', { admin: false, status: true, valid });
+        res.render('addaddressform', {
+          admin: false, status: true, valid, user,
+        });
       }
     } catch (error) {
       console.log(error);
+      next(error);
     }
   },
-  placeOrder: async (req, res) => {
+  placeOrder: async (req, res, next) => {
     try {
       const { user } = req.session;
       const userId = user._id;
@@ -343,9 +399,10 @@ module.exports = {
       });
     } catch (error) {
       console.log(error);
+      next(error);
     }
   },
-  viewOrder: async (req, res) => {
+  viewOrder: async (req, res, next) => {
     try {
       const { user } = req.session;
       const orders = await Order.find({ userId: user._id }).populate('productDt.productId');
@@ -353,9 +410,10 @@ module.exports = {
       res.render('vieworder', { admin: false, orders });
     } catch (error) {
       console.log(error);
+      next(error);
     }
   },
-  verifyPayment: async (req, res) => {
+  verifyPayment: async (req, res, next) => {
     try {
       const { user } = req.session;
       console.log(req.body);
@@ -384,17 +442,18 @@ module.exports = {
       }
     } catch (error) {
       console.log(error);
+      next(error);
     }
   },
-  orderViewProducts: async (req, res) => {
+  orderViewProducts: async (req, res, next) => {
     try {
       const orderId = req.body.productId;
       const doc = await Order.findOne({ _id: orderId }).populate('productDt.productId');
-      console.log(doc.productDt[0].productId);
       const orPrd = doc.productDt;
       res.json(orPrd);
     } catch (error) {
       console.log(error);
+      next(error);
     }
   },
   cancelOrder: (req, res) => {
@@ -406,9 +465,10 @@ module.exports = {
       });
     } catch (error) {
       console.log(error);
+      next(error);
     }
   },
-  userProfile: (req, res) => {
+  userProfile: (req, res, next) => {
     try {
       const { user } = req.session;
       User.findById(user._id).then((usr) => {
@@ -417,9 +477,10 @@ module.exports = {
       });
     } catch (error) {
       console.log(error);
+      next(error);
     }
   },
-  changePassword: (req, res) => {
+  changePassword: (req, res, next) => {
     try {
       const valid = req.flash('err');
       const userId = req.session.user._id;
@@ -428,9 +489,10 @@ module.exports = {
       });
     } catch (error) {
       console.log(error);
+      next(error);
     }
   },
-  postChangePassword: (req, res) => {
+  postChangePassword: (req, res, next) => {
     try {
       const { user } = req.session;
       const { currentPassword } = req.body;
@@ -465,17 +527,19 @@ module.exports = {
       });
     } catch (error) {
       console.log(error);
+      next(error);
     }
   },
-  addAddress: (req, res) => {
+  addAddress: (req, res, next) => {
     try {
       const valid = req.flash('err');
       res.render('addaddressform', { admin: false, status: false, valid });
     } catch (error) {
       console.log(error);
+      next(error);
     }
   },
-  postAddAddress: async (req, res) => {
+  postAddAddress: async (req, res, next) => {
     try {
       const { user } = req.session;
       const { address } = user;
@@ -507,10 +571,12 @@ module.exports = {
       }
     } catch (error) {
       console.log(error);
+      next(error);
     }
   },
-  codeApply: async (req, res) => {
+  codeApply: async (req, res, next) => {
     try {
+      console.log();
       const userId = req.session.user._id;
       const useer = await User.findById(userId);
       let totalPrice = parseInt(useer.cart.totalprice, 10);
@@ -561,18 +627,20 @@ module.exports = {
       }).clone().catch((err) => console.log(err));
     } catch (error) {
       console.log(error);
+      next(error);
     }
   },
-  invoice: async (req, res) => {
+  invoice: async (req, res, next) => {
     try {
       const { id } = req.params;
       const orders = await Order.findById(id).populate('productDt.productId');
       res.render('invoice', { admin: false, orders });
     } catch (error) {
       console.log(error);
+      next(error);
     }
   },
-  productDt: async (req, res) => {
+  productDt: async (req, res, next) => {
     try {
       console.log('HIhihi');
       const productId = req.query.id;
@@ -580,6 +648,58 @@ module.exports = {
       res.render('productdt', { admin: false, product, users: true });
     } catch (error) {
       console.log(error);
+      next(error);
+    }
+  },
+  postOtp: (req, res, next) => {
+    try {
+      const error = req.flash('error', 'Incorrect Otp');
+      console.log(req.body);
+      console.log(token);
+      if (req.body.otp == token) {
+        newUser.save();
+        token = 0;
+        res.redirect('/login');
+      } else {
+        res.render('otpfill', { admin: false, error });
+      }
+    } catch (error) {
+      console.log(error);
+      next(error);
+    }
+  },
+  resendOtp: (req, res, next) => {
+    try {
+      Crypto.randomBytes(2, (err, buffer) => {
+        if (err) {
+          console.log(err);
+        } else {
+          console.log(buffer);
+          token = buffer.toString('hex');
+          console.log(token);
+          helpers.emailOtp(token, email, () => console.log('Dummy'), true);
+        }
+      });
+      res.json(true);
+    } catch (error) {
+      console.log(error);
+      next(error);
+    }
+  },
+  searching: async (req, res, next) => {
+    try {
+      const pro = req.query.category;
+      const { cat } = req.query;
+      const allProducts = await Product.find({
+        $and: [{
+          name: { $regex: new RegExp(`^${pro}.*`, 'i') },
+        }, { category: cat }],
+      });
+      console.log(allProducts, '==');
+      res.json(allProducts);
+    } catch (error) {
+      console.log(error);
+      next(error);
     }
   },
 

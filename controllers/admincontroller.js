@@ -7,25 +7,31 @@ const Catogary = require('../models/catogaryschema');
 const product = require('../models/product');
 const orderSchema = require('../models/orderschema');
 const Coupon = require('../models/couponschema');
+const Banner = require('../models/banner');
+const orderschema = require('../models/orderschema');
 
 module.exports = {
-  catogaryForm: (req, res) => {
+  catogaryForm: (req, res, next) => {
     try {
       res.render('admin-catogory', { admin: true });
     } catch (error) {
+      error.admin = true;
+      next(error);
       console.log(error);
     }
   },
-  userList: async (req, res) => {
+  userList: async (req, res, next) => {
     try {
       const { admin } = req.session;
       const users = await User.find();
       res.render('admin-userlist', { admin, users, admin: true });
     } catch (error) {
+      error.admin = true;
+      next(error);
       console.log(error);
     }
   },
-  blockUser: async (req, res) => {
+  blockUser: async (req, res, next) => {
     try {
       const Id = req.body.userId;
       const user = await User.findById(Id);
@@ -38,20 +44,25 @@ module.exports = {
         res.json('Block');
       }
     } catch (error) {
+      error.admin = true;
+      next(error);
       console.log(error);
     }
   },
-  logoutAdmin: (req, res) => {
+  logoutAdmin: (req, res, next) => {
     try {
       req.session.destroy();
       res.redirect('/admin');
     } catch (error) {
+      error.admin = true;
+      next(error);
       console.log(error);
     }
   },
-  addCatogary: (req, res) => {
+  addCatogary: (req, res, next) => {
     try {
-      const img = req.file.filename;
+      console.log(req.files.image[0].filename);
+      const img = req.files.image[0].filename;
       console.log(img);
       const {
         name, discription, status,
@@ -70,10 +81,12 @@ module.exports = {
         res.redirect('/categoryForm');
       });
     } catch (error) {
+      error.admin = true;
+      next(error);
       console.log(error);
     }
   },
-  viewCategory: async (req, res) => {
+  viewCategory: async (req, res, next) => {
     try {
       const cat = { cat: '' };
       const category = await Catogary.find();
@@ -81,10 +94,12 @@ module.exports = {
       const Cat = cat.cat;
       res.render('admin-catogarylist', { Cat, admin: true });
     } catch (error) {
+      error.admin = true;
+      next(error);
       console.log(error);
     }
   },
-  doUnlist: async (req, res) => {
+  doUnlist: async (req, res, next) => {
     try {
       const Id = req.body.catId;
       let chng;
@@ -104,19 +119,23 @@ module.exports = {
         res.json({ stts, chng });
       });
     } catch (error) {
+      error.admin = true;
+      next(error);
       console.log(error);
     }
   },
-  catogaryEdit: async (req, res) => {
+  catogaryEdit: async (req, res, next) => {
     try {
       const Id = req.params.id;
       const Doc = await Catogary.findById(Id);
       res.render('admin-catogaryedit', { admin: false, Doc });
     } catch (error) {
+      error.admin = true;
+      next(error);
       console.log(error);
     }
   },
-  postCatEdit: async (req, res) => {
+  postCatEdit: async (req, res, next) => {
     try {
       const img = req.file.filename;
       const Id = req.body._id;
@@ -145,26 +164,32 @@ module.exports = {
         res.redirect('/addcategory'),
       ]);
     } catch (error) {
+      error.admin = true;
+      next(error);
       console.log(error);
     }
   },
-  adminProductView: async (req, res) => {
+  adminProductView: async (req, res, next) => {
     try {
       const products = await product.find();
       res.render('admin-productlist', { products, admin: true });
     } catch (error) {
+      error.admin = true;
+      next(error);
       console.log(error);
     }
   },
-  addProductForm: async (req, res) => {
+  addProductForm: async (req, res, next) => {
     try {
       const cat = await Catogary.find();
       res.render('admin-productaddform', { admin: true, cat });
     } catch (error) {
+      error.admin = true;
+      next(error);
       console.log(error);
     }
   },
-  addProduct: (req, res) => {
+  addProduct: (req, res, next) => {
     try {
       console.log(req.files);
       const img = req.files.image;
@@ -187,30 +212,36 @@ module.exports = {
         });
       }
     } catch (error) {
+      error.admin = true;
+      next(error);
       console.log(error);
     }
   },
-  dropProduct: (req, res) => {
+  dropProduct: (req, res, next) => {
     try {
       const Id = req.body.id;
       product.deleteOne({ _id: Id }).then(() => {
         res.json({ status: true });
       });
     } catch (error) {
+      error.admin = true;
+      next(error);
       console.log(error);
     }
   },
-  editProductView: (req, res) => {
+  editProductView: (req, res, next) => {
     try {
       const Id = req.params.id;
       product.findById(Id).then((pro) => {
         res.render('admin-proeditform', { admin: false, pro });
       });
     } catch (error) {
+      error.admin = true;
+      next(error);
       console.log(error);
     }
   },
-  updateProduct: (req, res) => {
+  updateProduct: (req, res, next) => {
     try {
       console.log(req.body.image);
       const Id = req.params.id;
@@ -243,18 +274,22 @@ module.exports = {
         res.redirect('/products');
       });
     } catch (error) {
+      error.admin = true;
+      next(error);
       console.log(error);
     }
   },
-  orderManagementView: async (req, res) => {
+  orderManagementView: async (req, res, next) => {
     try {
-      const orders = await orderSchema.find();
+      const orders = await orderSchema.find().populate('productDt.productId');
       res.render('ordersview', { orders, admin: true });
     } catch (error) {
+      error.admin = true;
+      next(error);
       console.log(error);
     }
   },
-  changeStatus: (req, res) => {
+  changeStatus: (req, res, next) => {
     try {
       const status = req.query.s;
       const response = {};
@@ -272,10 +307,12 @@ module.exports = {
         }
       });
     } catch (error) {
+      error.admin = true;
+      next(error);
       console.log(error);
     }
   },
-  dayReport: async (req, res) => {
+  dayReport: async (req, res, next) => {
     try {
       const dayReport = await orderSchema.aggregate([
         { $match: { Status: { $eq: 'Delivered' } } },
@@ -297,10 +334,12 @@ module.exports = {
       ]);
       res.render('admin-dayreport', { admin: true, dayReport });
     } catch (error) {
+      error.admin = true;
+      next(error);
       console.log(error);
     }
   },
-  monthReport: async (req, res) => {
+  monthReport: async (req, res, next) => {
     try {
       const month = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
       const sale = await orderSchema.aggregate([{ $match: { Status: { $eq: 'Delivered' } } },
@@ -327,10 +366,12 @@ module.exports = {
 
       res.render('admin-monthreport', { admin: true, sales });
     } catch (error) {
+      error.admin = true;
+      next(error);
       console.log(error);
     }
   },
-  yearReport: async (req, res) => {
+  yearReport: async (req, res, next) => {
     try {
       const year = await orderSchema.aggregate([{ $match: { Status: { $eq: 'Delivered' } } },
         {
@@ -353,7 +394,7 @@ module.exports = {
       console.log(error);
     }
   },
-  AdminDash: async (req, res) => {
+  AdminDash: async (req, res, next) => {
     try {
       const { admin } = req.session;
       const revenue = await orderSchema.aggregate([
@@ -455,28 +496,34 @@ module.exports = {
         allSales,
         todaySales,
         todayrevenue,
-        admin: false,
+        admin: true,
       });
     } catch (error) {
+      error.admin = true;
+      next(error);
       console.log(error);
     }
   },
-  CouponView: async (req, res) => {
+  CouponView: async (req, res, next) => {
     try {
       const coupon = await Coupon.find();
       res.render('admin-coupen', { admin: true, coupon });
     } catch (error) {
+      error.admin = true;
+      next(error);
       console.log(error);
     }
   },
-  addCoupon: (req, res) => {
+  addCoupon: (req, res, next) => {
     try {
       res.render('admin-addcoupon', { admin: true });
     } catch (error) {
+      error.admin = true;
+      next(error);
       console.log(error);
     }
   },
-  postCouponAdd: (req, res) => {
+  postCouponAdd: (req, res, next) => {
     try {
       console.log(req.body);
       const {
@@ -500,20 +547,24 @@ module.exports = {
         res.json(true);
       });
     } catch (error) {
+      error.admin = true;
+      next(error);
       console.log(error);
     }
   },
-  editCoupon: async (req, res) => {
+  editCoupon: async (req, res, next) => {
     try {
       const { id } = req.params;
       console.log(id);
       const coupon = await Coupon.findById(id);
       res.render('admin-editcoupon', { admin: false, coupon });
     } catch (error) {
+      error.admin = true;
+      next(error);
       console.log(error);
     }
   },
-  postEditCoupon: (req, res) => {
+  postEditCoupon: (req, res, next) => {
     try {
       console.log(req.body);
       Coupon.updateOne(
@@ -532,10 +583,12 @@ module.exports = {
         res.redirect('/CouponView');
       });
     } catch (error) {
+      error.admin = true;
+      next(error);
       console.log(error);
     }
   },
-  changeCouponStatus: (req, res) => {
+  changeCouponStatus: (req, res, next) => {
     try {
       console.log(req.body);
       const { id, status } = req.body;
@@ -555,7 +608,150 @@ module.exports = {
         });
       }
     } catch (error) {
+      error.admin = true;
+      next(error);
       console.log(error);
     }
   },
+  bannerView: async (req, res, next) => {
+    try {
+      res.render('bannerview', { banner, admin: true });
+    } catch (error) {
+      error.admin = true;
+      next(error);
+      console.log(error);
+    }
+  },
+  bannerAdd: async (req, res, next) => {
+    try {
+      res.render('addbannerform', { admin: true });
+    } catch (error) {
+      error.admin = true;
+      next(error);
+      console.log(error);
+    }
+  },
+  postAddBanner: (req, res, next) => {
+    try {
+      const image = req.files.image[0].filename;
+      const { name, url, discription } = req.body;
+      if (image) {
+        const nwBanner = new Banner({
+          name, url, discription, image,
+        });
+        nwBanner.save().then(() => res.redirect('/banner'));
+      }
+    } catch (err) {
+      error.admin = true;
+      next(error);
+      console.log(error);
+    }
+  },
+  dropBanner: (req, res, next) => {
+    try {
+      Banner.collection.drop().then(() => res.json(true));
+    } catch (error) {
+      error.admin = true;
+      next(error);
+      console.log(error);
+    }
+  },
+  bannerEditView: async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      const banner = await Banner.findById(id);
+      res.render('editbannerform', { admin: true, banner });
+    } catch (error) {
+      error.admin = true;
+      next(error);
+      console.log(error);
+    }
+  },
+  postEditBanner: (req, res, next) => {
+    try {
+      console.log(req.files);
+      const { id } = req.body;
+      let image;
+      if (req.files.image) {
+        image = req.files.image[0].filename;
+      }
+      const nwBanner = {
+        name: req.body.name,
+        url: req.body.url,
+        discription: req.body.discription,
+      };
+      if (image) {
+        Banner.updateOne({ _id: id }, {
+          $set: {
+            name: nwBanner.name,
+            image,
+            url: nwBanner.url,
+            discription: nwBanner.discription,
+          },
+        }).then(() => res.redirect('/banner'));
+      } else {
+        Banner.updateOne({ _id: id }, {
+          $set: {
+            name: nwBanner.name,
+            url: nwBanner.url,
+            discription: nwBanner.discription,
+          },
+        }).then(() => res.redirect('/banner'));
+      }
+    } catch (error) {
+      error.admin = true;
+      next(error);
+      console.log(error);
+    }
+  },
+  chart1: async (req, res, next) => {
+    try {
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const sale = await orderschema.aggregate([
+        { $match: { Status: { $eq: 'Delivered' } } },
+        {
+          $group: {
+            _id: {
+              month: { $month: '$date' },
+            },
+            totalPrice: { $sum: '$total' },
+            items: { $sum: { $size: '$productDt' } },
+            count: { $sum: 1 },
+
+          },
+        }, { $sort: { '_id.month': -1 } }]);
+      const salesRep = sale.map((el) => {
+        const newOne = { ...el };
+        newOne._id.month = months[newOne._id.month - 1];
+        return newOne;
+      });
+
+      res.json({ salesRep });
+    } catch (error) {
+      error.admin = true;
+      next(error);
+      console.log(error);
+    }
+  },
+  chart2: async (req, res, next) => {
+    try {
+      const payment = await orderschema.aggregate([
+        { $match: { Status: { $eq: 'Delivered' } } },
+        {
+          $group: {
+            _id: {
+              payment: '$paymentMethod',
+            },
+            count: { $sum: 1 },
+          },
+        }, { $sort: { '_id.month': -1 } }]);
+      console.log(payment);
+      res.json({ payment });
+    } catch (error) {
+      error.admin = true;
+      console.log(error, ':Error');
+      next(error);
+    }
+  },
+
 };

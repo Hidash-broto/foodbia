@@ -1,4 +1,5 @@
-<div class="container-fluid pt-4 px-4">
+<%- include('./userparsial/nav') %> 
+<div class="container-fluid pt-4 px-4 bg-secondary">
     <div class="row ">
         <div class="col-xl-2">
 
@@ -8,7 +9,7 @@
             <section class="row justify-content-center " style="margin-top: 2em;">
                 <div class="col-9 col-sm-8 col-md-8 col-lg-12">
                     <% for(var i=0;i<address.length;i++){ %>
-                        <div class="card mt-5">
+                        <div class="card mt-2">
                             <div class="card-body">
                                     <div class="d-flex justify-content-between">
                                         <h5 class="card-title">Address <%= i+1 %>
@@ -16,7 +17,7 @@
                                         <input class="checkout_input_checkbox" type="radio" id="html" name="address"
                                             value="<%=address[i].name%>, <%=address[i].country%>, <%=address[i].streetAddress%>, <%=address[i].town %>, <%=address[i].state%>, PinCode:<%=address[i].pincode%>, PhoneNo:<%=address[i].phone%>">
                                     </div>
-                                    <p class="card-text w-75">
+                                    <p class="card-text w-75 text-secondary">
                                         <%=address[i].name%>, <%=address[i].country%>, <%=address[i].streetAddress%>,
                                                     <%=address[i].town %>, <%=address[i].state%>, PinCode:
                                                             <%=address[i].pincode%>, PhoneNo:<%=address[i].phone%>
@@ -33,14 +34,16 @@
 
                 </div>
             </section>
-            <h1 class="mt-5 text-primary">Payment Method</h1>
-            <select name="paymentMethod" class="form-select mb-5" aria-label="Default select example">
+            <div class="bg-light mb-3 pl-4" style="height: 104px;width: 354px; border-radius: 10px; margin-left: 69px;">
+            <h1 class="mt-5 text-secondary">Payment Method</h1>
+            <select name="paymentMethod" class="form-select mb-5 ml-4" aria-label="Default select example">
                 <option selected>Choose</option>
                 <option value="Razorpay">Razorpay</option>
                 <option value="Cash on Delivery">Cash on Delivery</option>
               </select>
 
-            <button type="submit">submit</button>
+            <button class="btn btn-secondary" type="submit">Submit</button>
+          </div>
             </form>
         </div>
     </div>
