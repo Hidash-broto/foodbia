@@ -996,8 +996,8 @@ for (var attr in meta) {
 <div style="margin-left: 380px;" id="SearchDrawer" class="dT_ProductProactiveSearch">
   <form action="/search" method="get">
   <input type="hidden" name="type" value="product">
-  <input onkeyup="myFunction(this.value,'<%=products[0].category%>')" type="search" id="SearchInput" name="q" value="" 
-       placeholder=" Find Your Favourite Category" aria-label="Search" 
+  <input onkeyup="myFunction(this.value,'<%=products[0].category%>', false)" type="search" id="SearchInput" name="q" value="" 
+       placeholder=" Find Your Favourite Products" aria-label="Search" 
        class="search-bar__input"
        autocomplete="off"
        v-model="search" @keyup="inputChanged" @keydown.down="onArrow" @keydown.up="onArrow">
@@ -2597,9 +2597,9 @@ body{
 
 
   <script>
-    function myFunction(value, cat) {
+    function myFunction(value, cat, status) {
       console.log(cat);
-      fetch(`/searching?category=${value}&cat=${cat}`,{
+      fetch(`/searching?category=${value}&cat=${cat}&status=${status}`,{
         method:'get',
         headers:{
           'Content-type': 'application/json'

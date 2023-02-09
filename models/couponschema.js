@@ -21,11 +21,7 @@ const couponSchema = new mongoose.Schema(
 
     },
     usedUsers: [
-      {
-        userId: {
 
-        },
-      },
     ],
   },
 );

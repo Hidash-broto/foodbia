@@ -9,6 +9,7 @@
             <th scope="col">Date</th>
             <th scope="col">Address</th>
             <th scope="col">Total Price</th>
+            <th scope="col">Discount Price</th>
             <th scope="col">Payment</th>
             <th scope="col">Status</th>
             <th scope="col">Option</th>
@@ -19,13 +20,16 @@
             <tr>
               <th><%= index+1 %> </th>
               <td>
-                <%=order.date%>
+                <%=order.date.toLocaleString()%>
               </td>
               <td>
                 <%=order.address%>
               </td>
               <td>
-                <%=order.totalPrice%>
+                <%=order.productDt.totalprice%>
+              </td>
+              <td>
+                <%=order.productDt.discountedPrice%>
               </td>
               <td>
                 <%=order.paymentMethod%>
@@ -36,7 +40,7 @@
               <% if(order.Status=='Cancelled' || order.Status=='Delivered' ){ %>
                 <td id="siddeeque">
                   <%= order.Status %>
-                  <button class="btn btn-primary">View Products</button>
+                  <button class="btn btn-primary">View More</button>
                 </td>
                 <% }else{ %>
                   <td>
@@ -50,7 +54,7 @@
                       <option>Confirmed</option>
                       <option>Shipped</option>
                     </select>
-                    <button data-toggle="modal" data-target="#bt<%= order._id %>" class="btn btn-primary mt-2">View Products</button>
+                    <button data-toggle="modal" data-target="#bt<%= order._id %>" class="btn btn-primary mt-2">View More</button>
                   </td>
                   <% } %>
             </tr>
@@ -75,22 +79,27 @@
               <table class="table table-bordered mt-3">
                 <thead>
                   <tr>
-                    <th scope="col">Name</th>
-                    <th scope="col">Price</th>
-                    <th scope="col">Type</th>
                     <th scope="col">image</th>
-                  </tr> 
+                    <th scope="col">Name</th>
+                    <th scope="col">Type</th>
+                    <th scope="col">Price</th>
+                    <th scope="col">Qty</th>
+                    <th scope="col">Total Price</th>
+                  </tr>
                 </thead>
-                <% order.productDt.forEach((prd)=>{ %> 
+                <% order.productDt.items.forEach((prd)=>{ %> 
                     <tbody>
                   <tr>
-                    <td><%= prd.productId.name %></td>
-                    <td><%= prd.productId.price%></td>
-                    <td><%= prd.productId.type %></td>
                     <td><img src="/image/<%=prd.productId.image[0]%>" style="width: 100px;" alt=""></td>
+                    <td><%=prd.productId.name%></td>
+                    <td><%= prd.productId.type%></td>
+                    <td><%= prd.productId.price%></td>
+                    <td><%= prd.qty%></td>
+                    <td><%= prd.productId.price * prd.qty %> </td>
                   </tr>
                 </tbody>
                 <% }) %> 
+                <tr><td>Total:<%=order.productDt.totalprice%></td></tr>
             </table>
             </div>
 

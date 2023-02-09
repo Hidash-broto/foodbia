@@ -19,9 +19,20 @@
 </head>
 
 <body>
+    <nav class="navbar navbar-light bg-warning">
+        <a class="navbar-brand" href="/">
+          <img src="//cdn.shopify.com/s/files/1/0553/2824/3758/files/FOODBIA-LOGO.png?v=1668835038&amp;width=150" alt="dt-foodbia" srcset="//cdn.shopify.com/s/files/1/0553/2824/3758/files/FOODBIA-LOGO.png?v=1668835038&amp;width=50 50w, //cdn.shopify.com/s/files/1/0553/2824/3758/files/FOODBIA-LOGO.png?v=1668835038&amp;width=100 100w, //cdn.shopify.com/s/files/1/0553/2824/3758/files/FOODBIA-LOGO.png?v=1668835038&amp;width=150 150w" width="150" height="55.55555555555556" class="header__heading-logo">
+        </a>
+          <div style="display: flex; flex-direction: row;">
+            <a href="/shopNow" class="btn btn-secondary mr-4">Shop Now</a>
+            <a href="/cart" class="btn btn-primary mr-4"><i class="bi bi-cart"></i></a>
+            <a href="/wishlist" class="btn btn-primary mr-4"><i class="bi bi-heart"></i></a>
+            <a href="/userProfile" class="btn btn-primary mr-4"><i class="bi bi-person"></i></a>
+            <a href="/logout" class="btn btn-danger mr-5">Logout</a>
+      </div>
+      </nav>
     <main class="container">
-        <%- include('./userparsial/nav') %> 
-        <!-- sidebar start -->
+        <!-- sidebar start -->  
         <button class="toggle-button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasWithBothOptions"
             aria-controls="offcanvasWithBothOptions">
             <i class="fa-solid fa-bars text-dark"></i>
@@ -101,9 +112,9 @@
         </section>
 
 
-        <div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div  class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
-              <div class="modal-content">
+              <div style="width: 790px;" class="modal-content">
                 <div class="modal-header">
                   <h5 class="modal-title" id="exampleModalLabel">Address</h5>
                   <button type="button" class="close" data-dismiss="modal" aria-label="Close">

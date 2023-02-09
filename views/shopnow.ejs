@@ -980,9 +980,8 @@ for (var attr in meta) {
     
     
     <h1 class="breadcrumb_title">Categories</h1>
-    <a href="/" title="Back to the frontpage">Home</a>
+    <a href="/allProducts" title="Back to the frontpage">All Products <i class="bi bi-arrow-right"></i></a>
     
-    <span>Spicy Foods</span>
 
       
     
@@ -994,7 +993,7 @@ for (var attr in meta) {
 <div style="margin-left: 380px;" id="SearchDrawer" class="dT_ProductProactiveSearch">
   <form action="/search" method="get">    
   <input type="hidden" name="type" value="product">
-  <input onkeyup="myFunction(this.value)" type="search" id="SearchInput" name="q" value="" 
+  <input onkeyup="myFunction(this.value,'<%= category[0].name%>',true)" type="search" id="SearchInput" name="q" value="" 
        placeholder=" Find Your Favourite Category" aria-label="Search" 
        class="search-bar__input"
        autocomplete="off"
@@ -1024,7 +1023,7 @@ for (var attr in meta) {
                 <% category.forEach((cat)=>{ %>
                 <div class="col-md-8 col-lg-6 col-xl-4">
                   <div class="card text-black">
-                    <a style="text-decoration: none;" href="/productList/<%= cat._id %>">
+                    <a style="text-decoration: none;" href="/productList/<%=cat._id%>">
                     <img src="image/<%=cat.img%>"
                       class="card-img-top" alt="Apple Computer" />
                     <div class="card-body">
@@ -2469,9 +2468,9 @@ for (var attr in meta) {
       
 
    <script>
-    function myFunction(value) {
+    function myFunction(value, name, status){
       console.log(value);
-      fetch(`/searching?category=${value}`,{
+      fetch(`/searching?category=${value}&name=${name}&status=${status}`,{
         method:'get',
         headers:{
           'Content-type': 'application/json'

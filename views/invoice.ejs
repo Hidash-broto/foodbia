@@ -98,7 +98,7 @@
   </head>
   <body>
     <%- include('./userparsial/nav') %> 
-    <section class="main-pd-wrapper" style="width: 450px; margin: auto">
+    <section id="invoice" class="main-pd-wrapper mt-2" style="width: 450px; margin: auto">
       <div style="
                   text-align: center;
                   margin: auto;
@@ -129,18 +129,22 @@
                 <thead>
                   <tr>
                     <th style="width: 50px; padding-left: 0;">Sn.</th>
-                    <th style="width: 220px;">Item Name</th>
-                    <th style="text-align: right; padding-right: 0;">Price</th>
+                    <th style="width: 160px;">Item Name</th>  
+                    <th style="width: 80px;">Qty</th>
+                    <th style="width: 80px;">Price</th>
+                    <th style="text-align: right; padding-right: 0;">Total Price</th>
                   </tr>
                 </thead>
-                <% orders.productDt.forEach((obj, ind)=>{ %>
+                <% orders.productDt.items.forEach((obj, ind)=>{ %>
 
 
                 <tbody>
                   <tr class="invoice-items">
                     <td> <%=ind+1%> </td>
                     <td><%=obj.productId.name%></td>
-                    <td style="text-align: right;"><%=obj.productId.price%> </td>
+                    <td><%=obj.qty%></td>
+                    <td><%=obj.productId.price%></td>
+                    <td style="text-align: right;"><%=obj.productId.price * obj.qty%></td>
                   </tr>
                
                 </tbody>
@@ -152,33 +156,32 @@
               border-radius: 4px;">
                 <thead>
                   <tr>
-                    <th>Total</th>
-                    <th style="text-align: center;">Item</th>
+                    <th>Total:<%= orders.productDt.totalprice%></th>
+                    <th style="text-align: center;">Items:<%= orders.productDt.items.length %> </th>
                     <th>&nbsp;</th>
-                    <th style="text-align: right;"><%= orders.totalPrice %> </th>
+                    <th style="text-align: right;"><%= orders.totalPrice%></th>
                     
                   </tr>
                 </thead>
-             
               </table>
-
-              <table style="width: 100%;
-              margin-top: 15px;
-              border: 1px dashed #00cd00;
-              border-radius: 3px;">
-                <thead>
-                  <tr>
-                    <td>Total Saving In Rs: </td>
-                    <td style="text-align: right;">₹ 396</td>
-                  </tr>
-                  <tr>
-                    <td>Total Saving In %: </td>
-                    <td style="text-align: right;">32%</td>
-                  </tr>
-                </thead>
-             
-              </table>
-
+              
     </section>
+    <button id="download-button" class="btn btn-primary float-right mb-3 mr-5"><i class="bi bi-download"></i></button>
   </body>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script>
+    const button = document.getElementById('download-button');
+
+    function generatePDF() {
+      // Choose the element that your content will be rendered to.
+      const element = document.getElementById('invoice');
+      // Choose the element and save the PDF for your user.
+      html2pdf().from(element).save();
+    }
+
+    button.addEventListener('click', generatePDF);
+  </script>
+
+<script src="html2pdf.bundle.min.js"></script>
 </html>

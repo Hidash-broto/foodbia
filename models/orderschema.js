@@ -14,15 +14,19 @@ const orderSchema = new mongoose.Schema({
   Status: {
 
   },
-  productDt: [{
-    productId: {
-      type: String,
-      ref: product,
-    },
-  }],
-  totalPrice: {
-    type: Number,
+  productDt: {
+    items: [{
+      productId: {
+        type: mongoose.Types.ObjectId,
+        ref: product,
+      },
+      qty: {
+        type: Number,
+      },
+    }],
+    totalprice: Number,
   },
+  discountprice: Number,
   date: {
 
   },

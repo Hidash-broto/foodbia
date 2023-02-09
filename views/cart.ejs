@@ -13,14 +13,17 @@
                   </div>
                   <hr class="my-4">
                   <% const length = prd.cart.items.length%>
-                   
+                   <h1><%=user.cart.couponApply%></h1>
+                   <% if(prd.cart.items.length == 0){ %>
+                    <h1 class="text-primary">Cart Empty</h1>
+                 <%  } %>
                   <% for(var i=0;i<prd.cart.items.length;i++){ %> 
                     <% const prds = prd.cart.items[i] %>
 
                   <div class="row mb-4 d-flex justify-content-between align-items-center">
                     <div class="col-md-2 col-lg-2 col-xl-2">
                       <img
-                        src="/image/<%=prds.productId.image%>"
+                        src="/image/<%=prds.productId.image[0]%>"
                         class="img-fluid rounded-3" alt="">
                     </div>
                     <div class="col-md-3 col-lg-3 col-xl-3">
@@ -73,7 +76,20 @@
                   </div>
                   <div class="d-flex justify-content-between mb-5">
                     <h5 class="text-uppercase">Actual price</h5>
-                    <h5> <%= prd.cart.totalprice %> </h5>
+                    <h5 id="actualPrice"><% if(prd.cart.coupon.applyed){ %>
+                      <%=prd.cart.totalprice + prd.cart.coupon.amount%> 
+                  <%  }else{  %>
+                    <%=prd.cart.tatalprice%>
+                  <% } %></h5>
+                  </div>
+                  <hr class="my-4">
+                  <div class="d-flex justify-content-between mb-5">
+                    <h5 class="text-uppercase">Discounted price</h5>
+                    <h5 id="discountedPrice"><% if(prd.cart.coupon.applyed){ %>
+                      <%=prd.cart.coupon.amount%> 
+                  <%  }else{  %>
+                    0
+                  <% } %></h5>
                   </div>
                   <hr class="my-4">
 
@@ -81,9 +97,10 @@
                     <h5 class="text-uppercase">Total price</h5>
                     <h5 id="total"> <%= prd.cart.totalprice %> </h5>
                   </div>
-
                   <a href="/checkout"><button type="button" class="btn btn-dark btn-block btn-lg"
-                    data-mdb-ripple-color="dark">Checkout</button></a>
+                    data-mdb-ripple-color="dark"><% if(prd.cart.items.length != 0){ %>
+                      Checkout
+                   <%  } %></button></a>
                 </div>
               </div>
             </div>
@@ -138,6 +155,7 @@ border-bottom-right-radius: 16px;
 
 
 <script>
+  let total
   function addCart(proId,cnt){
     const quantity = document.getElementById(proId).value
     const count = parseInt(cnt)
@@ -158,6 +176,8 @@ border-bottom-right-radius: 16px;
           }else{
             document.getElementById(proId).value=res.status
             document.getElementById('total').innerHTML=res.total
+            $("#actualPrice").load(location.href + " #actualPrice");
+             $('#discountedPrice').load(location.href + ' #discountedPrice')
           }
       }
     })
@@ -179,8 +199,10 @@ border-bottom-right-radius: 16px;
                         $('#coupon-error').html('coupon not found!')
                     } else {
                         if (data.status) {
-                            $('#coupon-error').html('')
+                            $('#coupon-error').html('Coupon Applyed')
                             $('#total').html(data.total)
+                            $("#actualPrice").load(location.href + " #actualPrice");
+                            $("#discountedPrice").load(location.href + " #discountedPrice");
                         } else {
                             if (data.used) {
                                 $('#coupon-error').html('Already Used!')
@@ -198,5 +220,3 @@ border-bottom-right-radius: 16px;
   })
 </script>
 </head>
-
-\

@@ -7,7 +7,7 @@ const instance = new Razorpay({
 module.exports = {
   generateRazorpay: (order, callBack) => {
     instance.orders.create({
-      amount: order.totalPrice * 100,
+      amount: order.productDt.totalprice * 100,
       currency: 'INR',
       receipt: `${order._id}`,
       notes: {

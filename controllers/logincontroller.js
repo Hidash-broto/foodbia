@@ -4,6 +4,7 @@ const nodemailer = require('nodemailer');
 const sendGridTransport = require('nodemailer-sendgrid-transport');
 const Crypto = require('crypto');
 const { nextTick } = require('process');
+const formateDate = require('date-and-time');
 const oroducts = require('../models/wishlistscheema');
 const User = require('../models/user');
 const Product = require('../models/product');
@@ -49,8 +50,12 @@ module.exports = {
   },
   loginView: (req, res, next) => {
     try {
-      const error = req.flash('err');
-      res.render('login', { admin: false, error });
+      if (req.session.loggedIn) {
+        res.redirect('/');
+      } else {
+        const error = req.flash('err');
+        res.render('login', { admin: false, error });
+      }
     } catch (error) {
       console.log(error);
       next(error);
@@ -59,6 +64,7 @@ module.exports = {
   homePage: async (req, res, next) => {
     try {
       const { user } = req.session;
+      const status = req.session.loggedIn;
       let count = null;
       if (user) {
         count = user.cart.items.length;
@@ -66,7 +72,7 @@ module.exports = {
       const banner = await Banner.find();
       const nwBanner = banner[0];
       res.render('home', {
-        user, count, admin: false, nwBanner,
+        user, count, admin: false, nwBanner, status,
       });
     } catch (error) {
       console.log(error);
@@ -75,13 +81,12 @@ module.exports = {
   },
   registerUser: (req, res, next) => {
     try {
+      const { user } = req.session;
       Crypto.randomBytes(2, (err, buffer) => {
         if (err) {
           console.log(err);
         } else {
-          console.log(buffer);
           token = buffer.toString('hex');
-          console.log(token, 'JIJI');
         }
       });
       const {
@@ -116,7 +121,9 @@ module.exports = {
                   throw err;
                 }
                 newUser.password = hash;
-                helpers.emailOtp(token, email, () => res.render('otpfill', { admin: false, error: false, email }), true);
+                helpers.emailOtp(token, email, () => res.render('otpfill', {
+                  admin: false, error: false, email, user, status: false,
+                }), true);
               });
             });
           }
@@ -173,7 +180,7 @@ module.exports = {
   },
   logoutUser: (req, res, next) => {
     try {
-      req.session.destroy();
+      req.session.loggedIn = false;
       res.redirect('/');
     } catch (error) {
       console.log(error);
@@ -208,10 +215,10 @@ module.exports = {
         req.session.adminLogged = true;
         // eslint-disable-next-line no-multi-assign
         req.session.admin = req.body;
-        res.render('admin-home', { admin: true });
+        res.redirect('/dash');
       } else {
         req.flash('err', 'Incorrect Password or Email');
-        res.redirect('/admin');
+        res.redirect('/dash');
       }
     } catch (error) {
       console.log(error);
@@ -221,9 +228,10 @@ module.exports = {
   shopnowView: async (req, res, next) => {
     try {
       const { user } = req.session;
-      const category = await Catogaries.find();
+      const category = await Catogaries.find({ status: 'List' });
       res.render('shopnow', { user, admin: false, category });
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
       next(error);
     }
@@ -232,11 +240,8 @@ module.exports = {
     try {
       const { user } = req.session;
       const Id = req.params.id;
-      console.log(Id);
       const category = await Catogaries.findById(Id);
       const products = await Product.find({ category: category.name });
-      console.log(category, 'cat');
-      console.log(products, 'pro');
       res.render('productlist', { products, admin: false, user });
     } catch (error) {
       console.log(error);
@@ -248,7 +253,6 @@ module.exports = {
       const { user } = req.session;
       // eslint-disable-next-line no-underscore-dangle
       const prdDt = await oroducts.find({ userId: user._id }, { productLst: 1, _id: 0 }).populate('productLst');
-      console.log(prdDt);
       if (prdDt.length > 0) {
         const pd = prdDt[0].productLst;
         res.render('wishlist', { user, pd, admin: false });
@@ -279,7 +283,6 @@ module.exports = {
   addWishlist: async (req, res, next) => {
     try {
       const { user } = req.session;
-      console.log(req.body);
       const prdId = req.body.productId;
       const exist = await oroducts.findOne({ userId: user._id });
       if (exist) {
@@ -304,7 +307,6 @@ module.exports = {
         });
 
         nwWishlist.save();
-        res.json(true);
       }
     } catch (error) {
       console.log(error);
@@ -318,7 +320,6 @@ module.exports = {
       const response = {};
       oroducts.updateOne({ userId: user._id }, { $pull: { productLst: prdId } }).then(() => {
         response.status = true;
-        console.log(response);
         res.json(response);
       });
     } catch (error) {
@@ -353,18 +354,25 @@ module.exports = {
       next(error);
     }
   },
-  checkoutView: (req, res, next) => {
+  checkoutView: async (req, res, next) => {
     try {
       const valid = req.flash('err');
       const { user } = req.session;
-      const { address } = user;
-      if (user.address.length > 0) {
-        console.log(address);
-        res.render('addressselectionpage', { admin: false, address, user });
+      const useer = await User.find({ _id: user._id });
+      const length = useer[0].cart;
+      const addres = useer[0].address;
+      console.log(useer,'user');
+      console.log(addres);
+      if (length) {
+        if (addres.length > 0) {
+          res.render('addressselectionpage', { admin: false, addres, user });
+        } else {
+          res.render('addaddressform', {
+            admin: false, status: true, valid, user,
+          });
+        }
       } else {
-        res.render('addaddressform', {
-          admin: false, status: true, valid, user,
-        });
+        res.redirect('/cart');
       }
     } catch (error) {
       console.log(error);
@@ -373,22 +381,24 @@ module.exports = {
   },
   placeOrder: async (req, res, next) => {
     try {
-      const { user } = req.session;
-      const userId = user._id;
+      const userId = req.session.user._id;
+      const user = await User.findById(userId);
+      const discountprice = req.session.discountPrice;
       const {
         address, paymentMethod,
       } = req.body;
-      const productDt = req.session.user.cart.items;
-      const totalPrice = req.session.user.cart.totalprice;
-      console.log(totalPrice);
+      const productDt = user.cart;
       req.session.cartPrd = await User.findOne({ _id: user._id }).populate('cart.items.productId');
       const date = new Date();
       const Status = paymentMethod == 'Cash on Delivery' ? 'placed' : 'pending';
       const response = Status;
       const newOrder = new Order({
-        userId, address, paymentMethod, Status, productDt, totalPrice, date,
+        userId, address, paymentMethod, Status, productDt, discountprice, date,
       });
       newOrder.save().then(() => {
+        User.updateOne({ _id: userId }, {
+          $unset: { cart: 1 },
+        }).then((resp) => console.log('resp'));
         if (response == 'placed') {
           res.json(response);
         } else {
@@ -405,9 +415,8 @@ module.exports = {
   viewOrder: async (req, res, next) => {
     try {
       const { user } = req.session;
-      const orders = await Order.find({ userId: user._id }).populate('productDt.productId');
-      console.log(orders);
-      res.render('vieworder', { admin: false, orders });
+      const orders = await Order.find({ userId: user._id }).populate('productDt.items.productId');
+      res.render('vieworder', { admin: false, orders, user });
     } catch (error) {
       console.log(error);
       next(error);
@@ -416,7 +425,6 @@ module.exports = {
   verifyPayment: async (req, res, next) => {
     try {
       const { user } = req.session;
-      console.log(req.body);
       const dt = req.body.payment;
       // eslint-disable-next-line global-require
       const { createHmac } = await import('node:crypto');
@@ -425,9 +433,7 @@ module.exports = {
       const hash = createHmac('sha256', secret)
         .update(`${dt.razorpay_order_id}|${dt.razorpay_payment_id}`)
         .digest('hex');
-      console.log(hash, 'hash');
       if (hash == dt.razorpay_signature) {
-        console.log('success');
         Order.updateOne(
           { userID: user._id },
           {
@@ -438,7 +444,6 @@ module.exports = {
         });
       } else {
         res.json({ status: false });
-        console.log('Illya');
       }
     } catch (error) {
       console.log(error);
@@ -472,8 +477,7 @@ module.exports = {
     try {
       const { user } = req.session;
       User.findById(user._id).then((usr) => {
-        console.log(usr);
-        res.render('userprofile', { admin: false, usr });
+        res.render('userprofile', { admin: false, usr, user });
       });
     } catch (error) {
       console.log(error);
@@ -484,8 +488,11 @@ module.exports = {
     try {
       const valid = req.flash('err');
       const userId = req.session.user._id;
+      const { user } = req.session;
       User.findById(userId).then((usr) => {
-        res.render('changepassword', { admin: false, usr, valid });
+        res.render('changepassword', {
+          admin: false, usr, valid, user,
+        });
       });
     } catch (error) {
       console.log(error);
@@ -498,7 +505,6 @@ module.exports = {
       const { currentPassword } = req.body;
       const { NewPassword } = req.body;
       let { confirmPassword } = req.body;
-      console.log(req.body);
       bcrypt.compare(currentPassword, user.password).then((status) => {
         if (status) {
           if (NewPassword === confirmPassword) {
@@ -533,7 +539,10 @@ module.exports = {
   addAddress: (req, res, next) => {
     try {
       const valid = req.flash('err');
-      res.render('addaddressform', { admin: false, status: false, valid });
+      const { user } = req.session;
+      res.render('addaddressform', {
+        admin: false, status: false, valid, user,
+      });
     } catch (error) {
       console.log(error);
       next(error);
@@ -542,8 +551,7 @@ module.exports = {
   postAddAddress: async (req, res, next) => {
     try {
       const { user } = req.session;
-      const { address } = user;
-      console.log(req.body);
+      const  addres = user.address;
       const nwAddress = {
         name: req.body.name,
         country: req.body.country,
@@ -558,14 +566,13 @@ module.exports = {
           $push: { address: nwAddress },
         }).then(() => {
           console.log(req.body.status);
-          if (req.body.status) {
-            res.render('addressselectionpage', { admin: false, address });
+          if (req.body.status == 'true') {
+            res.render('addressselectionpage', { admin: false, addres, user });
           } else {
             res.redirect('/userProfile');
           }
         });
       } else {
-        console.log('Hello');
         req.flash('err', 'Fill All Field');
         res.redirect('/addAddress');
       }
@@ -576,10 +583,9 @@ module.exports = {
   },
   codeApply: async (req, res, next) => {
     try {
-      console.log();
       const userId = req.session.user._id;
       const useer = await User.findById(userId);
-      let totalPrice = parseInt(useer.cart.totalprice, 10);
+      const nwStatus = useer.cart;
       const { code } = req.body;
       const response = {};
       const coupon = await couponSchema.find({ name: code }, (err, document) => {
@@ -587,41 +593,49 @@ module.exports = {
           console.log(err);
         } else if (document.length > 0) {
           const doc = document[0];
-          console.log(document.length);
           if (doc.status == 'Enable') {
             if (Date.now() > doc.ExpiringDate) {
               response.expiry = true;
             } else {
-              const isUsed = doc.usedUsers.findIndex((el) => new String(el.userId).trim() == new String(userId).trim());
+              const isUsed = doc.usedUsers.findIndex((el) => new String(el).trim() == new String(userId).trim());
               if (isUsed >= 0) {
                 response.used = true;
               } else {
                 response.used = false;
                 if (doc != null || doc != undefined) {
-                  if (totalPrice >= doc.MinimumCartAmount) {
-                    req.session.user.cart.totalprice = totalPrice - doc.DiscountAmount;
-                    console.log(req.session.user.cart.totalprice);
-                    totalPrice -= doc.DiscountAmount;
+                  if (nwStatus.totalprice >= doc.MinimumCartAmount) {
+                    req.session.discountPrice = doc.DiscountAmount;
+                    req.session.user.cart.totalprice -= doc.DiscountAmount;
+                    nwStatus.totalprice -= doc.DiscountAmount;
+                    nwStatus.coupon.applyed = true;
+                    nwStatus.coupon.amount = doc.DiscountAmount;
+                    User.updateOne({ _id: userId }, {
+                      $set: { cart: nwStatus },
+                    }).then(() => {
+                      couponSchema.updateOne({ name: code }, {
+                        $push: { usedUsers: userId },
+                      }).then((result) => console.log('result'));
+                    });
                     response.status = true;
-                    response.total = totalPrice;
+                    response.total = nwStatus.totalprice;
                     response.discount = doc.DiscountAmount;
                   } else {
                     response.status = false;
-                    response.total = totalPrice;
+                    response.total = nwStatus.totalprice;
                     response.min = doc.MinimumCartAmount;
                   }
                 }
-                response.total = totalPrice;
+                response.total = nwStatus.totalprice;
                 response.discount = doc.DiscountAmount;
               }
             }
           } else {
             response.error = true;
-            response.total = totalPrice;
+            response.total = nwStatus.totalprice;
           }
         } else {
           response.error = true;
-          response.total = totalPrice;
+          response.total = nwStatus.totalPrice;
         }
         res.json(response);
       }).clone().catch((err) => console.log(err));
@@ -633,8 +647,9 @@ module.exports = {
   invoice: async (req, res, next) => {
     try {
       const { id } = req.params;
-      const orders = await Order.findById(id).populate('productDt.productId');
-      res.render('invoice', { admin: false, orders });
+      const { user } = req.session;
+      const orders = await Order.findById(id).populate('productDt.items.productId');
+      res.render('invoice', { admin: false, orders, user });
     } catch (error) {
       console.log(error);
       next(error);
@@ -642,10 +657,12 @@ module.exports = {
   },
   productDt: async (req, res, next) => {
     try {
-      console.log('HIhihi');
+      const { user } = req.session;
       const productId = req.query.id;
       const product = await Product.findById(productId);
-      res.render('productdt', { admin: false, product, users: true });
+      res.render('productdt', {
+        admin: false, product, users: true, user,
+      });
     } catch (error) {
       console.log(error);
       next(error);
@@ -653,15 +670,27 @@ module.exports = {
   },
   postOtp: (req, res, next) => {
     try {
-      const error = req.flash('error', 'Incorrect Otp');
-      console.log(req.body);
-      console.log(token);
-      if (req.body.otp == token) {
+      const status = req.query.Status;
+      const { user } = req.session;
+      const error = req.flash('error');
+      if (status) {
+        if (req.body.otp == token) {
+          res.render('passwordchange', { user, admin: false });
+        } else {
+          req.flash('error', 'Otp incorrect');
+          res.render('otpfill', {
+            admin: false, error, user, status: false,
+          });
+        }
+      } else if (req.body.otp == token) {
         newUser.save();
         token = 0;
         res.redirect('/login');
       } else {
-        res.render('otpfill', { admin: false, error });
+        req.flash('error', 'Otp incorrect');
+        res.render('otpfill', {
+          admin: false, error, user, status: false,
+        });
       }
     } catch (error) {
       console.log(error);
@@ -674,9 +703,7 @@ module.exports = {
         if (err) {
           console.log(err);
         } else {
-          console.log(buffer);
           token = buffer.toString('hex');
-          console.log(token);
           helpers.emailOtp(token, email, () => console.log('Dummy'), true);
         }
       });
@@ -689,18 +716,101 @@ module.exports = {
   searching: async (req, res, next) => {
     try {
       const pro = req.query.category;
-      const { cat } = req.query;
-      const allProducts = await Product.find({
-        $and: [{
-          name: { $regex: new RegExp(`^${pro}.*`, 'i') },
-        }, { category: cat }],
-      });
-      console.log(allProducts, '==');
-      res.json(allProducts);
+      const category = req.query.cat;
+      const Status = req.query.status;
+      console.log(req.query);
+      if (Status === 'true') {
+        const allProducts = await Catogaries.find({
+          $and: [{
+            name: { $regex: new RegExp(`^${pro}.*`, 'i') },
+          }],
+        });
+        res.json(allProducts);
+      } else {
+        console.log('==');
+        const allProducts = await Product.find({
+          $and: [{
+            name: { $regex: new RegExp(`^${pro}.*`, 'i') },
+          }, { category }],
+        });
+        res.json(allProducts);
+      }
     } catch (error) {
       console.log(error);
       next(error);
     }
   },
-
+  allProducts: async (req, res) => {
+    const { user } = req.session;
+    const page = +req.query.page || 1;
+    const itemsperPage = 3;
+    let totalitems;
+    Product.find()
+      .countDocuments().then((numProducts) => {
+        totalitems = numProducts;
+        return Product.find()
+          .skip((page - 1) * itemsperPage)
+          .limit(itemsperPage);
+      }).then((products) => {
+        res.render('allproducts', {
+          admin: false,
+          products,
+          user,
+          currentPage: page,
+          hasNextPage: itemsperPage * page < totalitems,
+          hasPreviousPage: page > 1,
+          nextPage: page + 1,
+          previousPage: page - 1,
+          lastPage: Math.ceil(totalitems / itemsperPage),
+        });
+      });
+  },
+  forgotPass: (req, res) => {
+    const { user } = req.session;
+    res.render('forgotpassemail', { user, admin: false });
+  },
+  forgotPassOtp: (req, res) => {
+    const { user } = req.session;
+    email = req.body.email;
+    Crypto.randomBytes(2, (err, buffer) => {
+      if (err) {
+        console.log(err);
+      } else {
+        token = buffer.toString('hex');
+        helpers.emailOtp(token, email, () => res.render('otpfill', {
+          admin: false, error: false, email, user, status: true,
+        }), true);
+        console.log(token, 'JIJI');
+      }
+    });
+  },
+  postUpdatePass: (req, res) => {
+    const { user } = req.session;
+    let { nwPassword, confirmPassword } = req.body;
+    const error = req.flash('err');
+    if (nwPassword === confirmPassword) {
+      bcrypt.genSalt(10, (err, salt) => {
+        bcrypt.hash(nwPassword, salt, (Error, hash) => {
+          if (Error) {
+            console.log(Error);
+          } else {
+            nwPassword = hash;
+            User.updateOne({ email }, {
+              $set: {
+                password: nwPassword,
+                confirmPassword: nwPassword,
+              },
+            }).then(() => {
+              res.redirect('/login');
+            }).catch((errr) => console.log(errr));
+          }
+        });
+      });
+    } else {
+      req.flash('err', 'Password and Confirm Password must be Match');
+      res.render('passwordchange', {
+        admin: false, user, error,
+      });
+    }
+  },
 };

@@ -128,8 +128,8 @@ return false;
 })
   location.href = '/viewOrder'
         }else{
-          console.log('huhuh');
-          pay(response.order)
+          console.log(response.order, '===');
+          pay(response.order);
         }
       }
     })

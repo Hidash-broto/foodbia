@@ -21,7 +21,7 @@ router.get('/changeStatus', verifyAdmin, changeStatus);
 router.get('/dayReport', verifyAdmin, dayReport);
 router.get('/monthReport', verifyAdmin, monthReport);
 router.get('/yearReport', verifyAdmin, yearReport);
-router.get('/dashboard', verifyAdmin, AdminDash);
+router.get('/dash', verifyAdmin, AdminDash);
 router.get('/CouponView', verifyAdmin, CouponView);
 router.get('/addCoupon', verifyAdmin, addCoupon);
 router.get('/editCoupon/:id', verifyAdmin, editCoupon);

@@ -14,6 +14,7 @@ const multer = require('multer');
 const morgan = require('morgan');
 const flash = require('connect-flash');
 
+
 const location = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, 'public/image');
@@ -36,7 +37,7 @@ const fileFilter = (req, file, cb) => {
 };
 
 app.use(flash());
-app.use(morgan('dev'));
+// app.use(morgan('dev'));
 app.use(
   multer({ storage: location, fileFilter }).fields([
     { name: 'image' },
@@ -59,8 +60,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(expressLayouts);
 app.use(express.static('public'));
 
-
-
 mongoose.set('strictQuery', true);
 const mongo = process.env.MONGO_LAB;
 mongoose.connect(mongo, () => { console.log('DataBase Connected'); });
@@ -70,6 +69,7 @@ app.set('layout', 'layout');
 app.set(express.static('public'));
 app.use('/', require('./routes/login'));
 app.use('/', require('./routes/admin'));
+
 app.use((req, res, next) => {
   const error = new Error(`Not found ${req.originalUrl}`);
   error.status = 404;

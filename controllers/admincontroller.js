@@ -2,6 +2,7 @@ const bcrypt = require('bcryptjs');
 const { name } = require('ejs');
 const { json } = require('body-parser');
 const _ = require('underscore');
+const formateDate = require('date-and-time');
 const User = require('../models/user');
 const Catogary = require('../models/catogaryschema');
 const product = require('../models/product');
@@ -51,7 +52,7 @@ module.exports = {
   },
   logoutAdmin: (req, res, next) => {
     try {
-      req.session.destroy();
+      req.session.adminLogged = false;
       res.redirect('/admin');
     } catch (error) {
       error.admin = true;
@@ -61,25 +62,19 @@ module.exports = {
   },
   addCatogary: (req, res, next) => {
     try {
-      console.log(req.files.image[0].filename);
       const img = req.files.image[0].filename;
-      console.log(img);
       const {
         name, discription, status,
       } = req.body;
-      const nwCatogary = new Catogary({
-        name, discription, status,
-      });
+
       if (img) {
-        const imgSave = new Catogary({
-          img,
+        const nwCatogary = new Catogary({
+          name, discription, status, img,
         });
-        imgSave.save();
+        nwCatogary.save().then(() => {
+          res.redirect('/categoryForm');
+        });
       }
-      console.log(req.body);
-      nwCatogary.save().then(() => {
-        res.redirect('/categoryForm');
-      });
     } catch (error) {
       error.admin = true;
       next(error);
@@ -137,7 +132,10 @@ module.exports = {
   },
   postCatEdit: async (req, res, next) => {
     try {
-      const img = req.file.filename;
+      console.log(req.files, 'req.files');
+      const img = req.files.filename;
+      console.log(img, 'img');
+
       const Id = req.body._id;
       const nwCatogary = {
         name: req.body.name,
@@ -145,8 +143,7 @@ module.exports = {
         img,
         status: req.body.status,
       };
-      const Cat = await Catogary.findOne({ _id: Id });
-      console.log(Cat, 'hihihi');
+      const Cat = await Catogary.findOne({ _id: Id });  
       if (img) {
         await Catogary.updateOne({ _id: Id }, {
           $set: {
@@ -191,13 +188,11 @@ module.exports = {
   },
   addProduct: (req, res, next) => {
     try {
-      console.log(req.files);
       const img = req.files.image;
       const image = [];
       img.forEach((el, i, arr) => {
         image.push(arr[i].path.substring(12));
       });
-      console.log(image);
       if (img) {
         const nwProduct = new product({
           name: req.body.name,
@@ -243,7 +238,7 @@ module.exports = {
   },
   updateProduct: (req, res, next) => {
     try {
-      console.log(req.body.image);
+      console.log(req.files);
       const Id = req.params.id;
       const image = [];
       const nwpro = {
@@ -253,8 +248,7 @@ module.exports = {
         flavour: req.body.flavour,
         category: req.body.category,
       };
-      console.log(req.files);
-      if (req.files) {
+      if (req.files.image) {
         const img = req.files.image;
         img.forEach((el, i, arr) => {
           image.push(arr[i].path.substring(12));
@@ -281,7 +275,7 @@ module.exports = {
   },
   orderManagementView: async (req, res, next) => {
     try {
-      const orders = await orderSchema.find().populate('productDt.productId');
+      const orders = await orderSchema.find().populate('productDt.items.productId');
       res.render('ordersview', { orders, admin: true });
     } catch (error) {
       error.admin = true;
@@ -293,7 +287,6 @@ module.exports = {
     try {
       const status = req.query.s;
       const response = {};
-      console.log(status);
       const oId = req.query.id;
       orderSchema.updateOne({ _id: oId }, {
         $set: { Status: status },
@@ -319,8 +312,8 @@ module.exports = {
         {
           $group: {
             _id: { year: { $year: '$date' }, month: { $month: '$date' }, day: { $dayOfMonth: '$date' } },
-            totalPrice: { $sum: '$totalPrice' },
-            items: { $sum: { $size: '$productDt' } },
+            totalPrice: { $sum: '$productDt.totalprice' },
+            items: { $sum: { $size: '$productDt.items' } },
             count: { $sum: 1 },
           },
         },
@@ -348,8 +341,8 @@ module.exports = {
             _id: {
               month: { $month: '$date' },
             },
-            totalPrice: { $sum: '$totalPrice' },
-            items: { $sum: { $size: '$productDt' } },
+            totalPrice: { $sum: '$productDt.totalprice' },
+            items: { $sum: { $size: '$productDt.items' } },
             count: { $sum: 1 },
           },
         },
@@ -379,8 +372,8 @@ module.exports = {
             _id: {
               year: { $year: '$date' },
             },
-            totalPrice: { $sum: '$totalPrice' },
-            items: { $sum: { $size: '$productDt' } },
+            totalPrice: { $sum: '$productDt.totalprice' },
+            items: { $sum: { $size: '$productDt.items' } },
             count: { $sum: 1 },
           },
         },
@@ -410,8 +403,8 @@ module.exports = {
           $group: {
             _id: {
             },
-            totalPrice: { $sum: '$totalPrice' },
-            items: { $sum: { $size: '$productDt' } },
+            totalPrice: { $sum: '$productDt.totalprice' },
+            items: { $sum: { $size: '$productDt.items' } },
             count: { $sum: 1 },
 
           },
@@ -441,14 +434,13 @@ module.exports = {
               day: { $dayOfMonth: '$date' },
 
             },
-            totalPrice: { $sum: '$totalPrice' },
-            items: { $sum: { $size: '$productDt' } },
+            totalPrice: { $sum: '$productDt.totalprice' },
+            items: { $sum: { $size: '$productDt.items' } },
             count: { $sum: 1 },
 
           },
         },
       ]);
-      console.log(todayrevenue);
 
       const todaySales = await orderSchema.aggregate([
         {
@@ -466,7 +458,7 @@ module.exports = {
 
             },
             totalPrice: { $sum: '$totalPrice' },
-            items: { $sum: { $size: '$productDt' } },
+            items: { $sum: { $size: '$productDt.items' } },
             count: { $sum: 1 },
 
           },
@@ -482,13 +474,12 @@ module.exports = {
             _id: {
             },
             totalPrice: { $sum: '$totalPrice' },
-            items: { $sum: { $size: '$productDt' } },
+            items: { $sum: { $size: '$productDt.items' } },
             count: { $sum: 1 },
 
           },
         }, { $sort: { date: -1 } },
       ]);
-      console.log(revenue, '===');
 
       res.render('admin-dashboard', {
         admin,
@@ -525,7 +516,6 @@ module.exports = {
   },
   postCouponAdd: (req, res, next) => {
     try {
-      console.log(req.body);
       const {
         name,
         DiscountAmount,
@@ -555,7 +545,6 @@ module.exports = {
   editCoupon: async (req, res, next) => {
     try {
       const { id } = req.params;
-      console.log(id);
       const coupon = await Coupon.findById(id);
       res.render('admin-editcoupon', { admin: false, coupon });
     } catch (error) {
@@ -566,7 +555,6 @@ module.exports = {
   },
   postEditCoupon: (req, res, next) => {
     try {
-      console.log(req.body);
       Coupon.updateOne(
         { _id: req.body._id },
         {
@@ -590,17 +578,14 @@ module.exports = {
   },
   changeCouponStatus: (req, res, next) => {
     try {
-      console.log(req.body);
       const { id, status } = req.body;
       if (status == '1') {
-        console.log('1');
         Coupon.updateOne({ _id: id }, {
           $set: { status: 'Disable' },
         }).then((response) => {
           res.json(true);
         });
       } else {
-        console.log('-1');
         Coupon.updateOne({ _id: id }, {
           $set: { status: 'Enable' },
         }).then((response) => {
@@ -615,6 +600,7 @@ module.exports = {
   },
   bannerView: async (req, res, next) => {
     try {
+      const banner = await Banner.find();
       res.render('bannerview', { banner, admin: true });
     } catch (error) {
       error.admin = true;
@@ -669,7 +655,6 @@ module.exports = {
   },
   postEditBanner: (req, res, next) => {
     try {
-      console.log(req.files);
       const { id } = req.body;
       let image;
       if (req.files.image) {
@@ -715,7 +700,7 @@ module.exports = {
               month: { $month: '$date' },
             },
             totalPrice: { $sum: '$total' },
-            items: { $sum: { $size: '$productDt' } },
+            items: { $sum: { $size: '$productDt.items' } },
             count: { $sum: 1 },
 
           },
@@ -745,7 +730,6 @@ module.exports = {
             count: { $sum: 1 },
           },
         }, { $sort: { '_id.month': -1 } }]);
-      console.log(payment);
       res.json({ payment });
     } catch (error) {
       error.admin = true;

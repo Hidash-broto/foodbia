@@ -30,6 +30,10 @@ const userSchema = new mongoose.Schema({
       },
     }],
     totalprice: Number,
+    coupon: {
+      applyed: false,
+      amount: 0,
+    },
   },
   userType: {
     default: 'Block',
@@ -89,6 +93,7 @@ userSchema.methods.changeqty = async function (prdId, qty, ctn, callBack) {
   this.save().then((doc) => {
     response.total = doc.cart.totalprice;
     response.length = cart.items.length;
+    response.productPrice = Prduct.price;
     callBack(response);
   });
 };

@@ -173,7 +173,7 @@
 function maiin($) {
   $.ajax(({
     url: '/chart1',
-    mathod: 'get',
+    method: 'get',
     success: (res) => {
       const month = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
       const count = [];
@@ -213,7 +213,7 @@ function maiin2($) {
       const myChart6 = new Chart('doughnut-chart', {
         type: 'doughnut',
         data: {
-          labels: ['razorPay', 'cod'],
+          labels: ['Razorpay', 'COD'],
           datasets: [{
             backgroundColor: [
               'rgba(235, 22, 22, .6)',

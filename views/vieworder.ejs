@@ -11,6 +11,7 @@
         <th scope="col">Date</th>
         <th scope="col">Address</th>
         <th scope="col">Amount</th>
+        <th scope="col">Discount Amount</th>
         <th scope="col">Payment</th>
         <th scope="col">Status</th>
         <th scope="col">Options</th>
@@ -19,10 +20,15 @@
     <% orders.forEach((order)=>{ %>
     <tbody>
       <tr>
-        <td><%= order.date %></td>
-        <td><%= order.address %></td>
-        <td><%= order.totalPrice%></td>
-        <td><%= order.paymentMethod %></td>
+        <td><%=order.date.toLocaleString()%></td>
+        <td><%=order.address %></td>
+        <td><%=order.productDt.totalprice%></td>
+        <td><% if(order.discountprice){  %>
+               <%=order.discountprice%> 
+      <%  }else{  %>
+          0
+      <%  } %> </td>
+        <td><%=order.paymentMethod %></td>
         <td id="<%=order._id%>"><%=order.Status%></td>
         <td><button onclick="prdShow('<%=order._id%>')" type="button" class="btn btn-primary" data-toggle="modal" data-target="#bt<%= order._id %> ">
           View Products
@@ -56,20 +62,24 @@
               <table class="table table-bordered mt-3">
                 <thead>
                   <tr>
-                    <th scope="col">Name</th>
-                    <th scope="col">Price</th>
-                    <th scope="col">Type</th>
                     <th scope="col">image</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Type</th>
+                    <th scope="col">Price</th>
+                    <th scope="col">Qty</th>
+                    <th scope="col">Total Price</th>
                   </tr> 
                 </thead>
-                <% order.productDt.forEach((prd)=>{ %> 
+                <% order.productDt.items.forEach((prd)=>{ %> 
                     <tbody>
-                  <tr>
-                    <td><%= prd.productId.name %></td>
-                    <td><%= prd.productId.price%></td>
-                    <td><%= prd.productId.type %></td>
-                    <td><img src="/image/<%=prd.productId.image[0]%>" style="width: 100px;" alt=""></td>
-                  </tr>
+                      <tr>
+                        <td><img src="/image/<%=prd.productId.image[0]%>" style="width: 100px;" alt=""></td>
+                        <td><%=prd.productId.name%></td>
+                        <td><%= prd.productId.type%></td>
+                        <td><%= prd.productId.price%></td>
+                        <td><%= prd.qty%></td>
+                        <td><%= prd.productId.price * prd.qty %> </td>
+                      </tr>
                 </tbody>
                 <% }) %> 
             </table>
