@@ -114,7 +114,7 @@
 
         <div  class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
-              <div style="width: 790px;" class="modal-content">
+              <div style="width: 852px;" class="modal-content">
                 <div class="modal-header">
                   <h5 class="modal-title" id="exampleModalLabel">Address</h5>
                   <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -132,9 +132,10 @@
                         <th scope="col">State</th>
                         <th scope="col">Pincode</th>
                         <th scope="col">Phone</th>
+                        <th scope="col">Option</th>
                       </tr> 
                     </thead> 
-                    <% usr.address.forEach((address)=>{ %>
+                    <% usr.address.forEach((address, index)=>{ %>
                         <tbody>
                       <tr>
                         <td><%= address.name %></td>
@@ -144,6 +145,7 @@
                         <td><%= address.state %></td>
                         <td><%= address.pincode %></td>
                         <td><%= address.phone %></td>
+                        <td><butto onclick="drop('<%=index%>')" class="btn btn-primary">Delete</button></td>
                       </tr>
                     </tbody>
                     <%   }) %> 
@@ -168,6 +170,24 @@
         integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
         crossorigin="anonymous"></script>
     <script>
+
+        function drop(params) {
+            console.log(params);
+            $.ajax({
+                url: '/addressDrop',
+                method: 'post',
+                data:{
+                    index:params,
+                },
+                success:(resp)=>{
+                    console.log(resp);
+                    if (resp) {
+                        location.reload()
+                    }
+                }
+            })
+        }
+
        function changePassword(params) {
 
         $.ajax({

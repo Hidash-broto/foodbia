@@ -15,6 +15,7 @@ const Coupon = require('../models/couponschema');
 const couponSchema = require('../models/couponschema');
 const Banner = require('../models/banner');
 const helpers = require('../user helpers/user');
+const user = require('../models/user');
 
 const transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com',
@@ -812,5 +813,17 @@ module.exports = {
         admin: false, user, error,
       });
     }
+  },
+  addressDrop: async (req, res) => {
+    console.log(req.body);
+    const { index } = req.body;
+    const { user } = req.session;
+    const user2 = await User.find({ _id: user._id });
+    console.log(user2.address);
+    user2[0].address.splice(index, 1);
+    console.log(user2, ':after');
+    User.updateOne({ _id: user._id }, {
+      $set: { address: user2[0].address },
+    }).then(() => res.json(true));
   },
 };
