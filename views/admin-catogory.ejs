@@ -4,6 +4,9 @@
 
         </div>
 <div class="col-sm-12 col-xl-6 ml-5">
+  <% if(error){ %>
+    <h5 class="text-danger"><%= error%></h5>
+    <% } %>
 <form method="post" action="/addCatogary" enctype="multipart/form-data" >
     <div class="form-group">
       <label for="exampleInputEmail1">Name of Catogary</label>

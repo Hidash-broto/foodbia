@@ -98,7 +98,7 @@ module.exports = {
         res.redirect('/signup');
         console.log('Fill empty Area');
         // eslint-disable-next-line
-  } else if (password != confirmPassword) {
+      } else if (password != confirmPassword) {
         req.session.confPassword = true;
         res.redirect('/signup');
         // eslint-disable-next-line no-console
@@ -143,7 +143,7 @@ module.exports = {
         console.log('Fill empty area');
         res.redirect('/login');
       } else {
-      // eslint-disable-next-line no-new, no-async-promise-executor, no-unused-vars
+        // eslint-disable-next-line no-new, no-async-promise-executor, no-unused-vars
         new Promise(async (_ressolve) => {
           const user = await User.findOne({ email: Email });
           User.findOne({ email: Email }).then((usr) => {
@@ -361,7 +361,7 @@ module.exports = {
       const useer = await User.find({ _id: user._id });
       const length = useer[0].cart;
       const addres = useer[0].address;
-      console.log(useer,'user');
+      console.log(useer, 'user');
       console.log(addres);
       if (length) {
         if (addres.length > 0) {
@@ -551,7 +551,7 @@ module.exports = {
   postAddAddress: async (req, res, next) => {
     try {
       const { user } = req.session;
-      const  addres = user.address;
+      const addres = user.address;
       const nwAddress = {
         name: req.body.name,
         country: req.body.country,

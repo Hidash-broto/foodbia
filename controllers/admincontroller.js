@@ -14,7 +14,8 @@ const orderschema = require('../models/orderschema');
 module.exports = {
   catogaryForm: (req, res, next) => {
     try {
-      res.render('admin-catogory', { admin: true });
+      const error = req.flash('err');
+      res.render('admin-catogory', { admin: true, error });
     } catch (error) {
       error.admin = true;
       next(error);
@@ -60,14 +61,22 @@ module.exports = {
       console.log(error);
     }
   },
-  addCatogary: (req, res, next) => {
+  addCatogary: async (req, res, next) => {
     try {
+      const error = req.flash('err');
       const img = req.files.image[0].filename;
       const {
         name, discription, status,
       } = req.body;
 
-      if (img) {
+      const exist = await Catogary.findOne({ name });
+      if (exist) {
+        console.log(exist);
+        console.log('kkk');
+        req.flash('err', 'Give Unique Name');
+        res.render('admin-catogory', { admin: true, error });
+        req.flash('err', '');
+      } else if (img) {
         const nwCatogary = new Catogary({
           name, discription, status, img,
         });
@@ -143,7 +152,7 @@ module.exports = {
         img,
         status: req.body.status,
       };
-      const Cat = await Catogary.findOne({ _id: Id });  
+      const Cat = await Catogary.findOne({ _id: Id });
       if (img) {
         await Catogary.updateOne({ _id: Id }, {
           $set: {
@@ -178,22 +187,32 @@ module.exports = {
   },
   addProductForm: async (req, res, next) => {
     try {
+      const error = req.flash('err');
       const cat = await Catogary.find();
-      res.render('admin-productaddform', { admin: true, cat });
+      res.render('admin-productaddform', { admin: true, cat, error });
     } catch (error) {
       error.admin = true;
       next(error);
       console.log(error);
     }
   },
-  addProduct: (req, res, next) => {
+  addProduct: async (req, res, next) => {
     try {
+      const error = req.flash('err');
+      const cat = await Catogary.find();
       const img = req.files.image;
       const image = [];
       img.forEach((el, i, arr) => {
         image.push(arr[i].path.substring(12));
       });
-      if (img) {
+      const exist = await product.findOne({ name: req.body.name });
+      console.log(exist);
+      if (exist) {
+        console.log('kkkk');
+        req.flash('err', 'Give Unique Name');
+        res.render('admin-productaddform', { admin: true, cat, error });
+        req.flash('err', '');
+      } else if (img) {
         const nwProduct = new product({
           name: req.body.name,
           price: req.body.price,
