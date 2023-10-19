@@ -37,7 +37,6 @@ module.exports = {
     try {
       const Id = req.body.userId;
       const user = await User.findById(Id);
-      const response = {};
       if (user.userType == 'Block') {
         User.findOneAndUpdate({ _id: Id }, { userType: 'Unblock' }).then((res) => console.log(res, '=='));
         res.json('Unblock');
